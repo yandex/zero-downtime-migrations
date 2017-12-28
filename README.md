@@ -38,6 +38,10 @@ class YourCustomSchemaEditor(ZeroDownTimeMixin, ...):
     ...
 ```
 
+## Possibilities
+- add field with default value
+- create index concurrently
+
 ## Run tests
 
 `./run_tests.sh`
