@@ -1,9 +1,5 @@
-sudo: required
-
-language: python
-
-services:
-  - docker
+env:
+  - DOCKER_COMPOSE_VERSION=1.11.2
 
 script:
   - docker-compose run tox

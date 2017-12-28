@@ -1,5 +1,7 @@
 ## UNDER DEVELOPMENT NOW
 
+https://travis-ci.org/Smosker/zero-downtime-migrations.svg?branch=work_on_project
+
 ## Description
 
 Zero-Downtime-Migrations (ZDM) -- this is application which allow you to avoid long locks (and rewriting the whole table)
