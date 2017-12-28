@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  db:
+    image: postgres
+  tox:
+    build: .
+    depends_on:
+      - db
+    volumes:
+      - ".:/src:ro"
