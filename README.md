@@ -1,6 +1,6 @@
 ## UNDER DEVELOPMENT NOW
 
-https://travis-ci.org/Smosker/zero-downtime-migrations.svg?branch=work_on_project
+[![Build Status](https://travis-ci.org/Smosker/zero-downtime-migrations.svg?branch=master)](https://travis-ci.org/Smosker/zero-downtime-migrations)
 
 ## Description
 
