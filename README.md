@@ -1,3 +1,5 @@
+## UNDER DEVELOPMENT NOW
+
 ## Description
 
 Zero-Downtime-Migrations (ZDM) -- this is application which allow you to avoid long locks (and rewriting the whole table)
@@ -5,7 +7,7 @@ while applying Django migrations using PostgreSql as database.
 
 ## Installation
 To install ZDM, simply run:
-`$ pip install freezegun`
+`$ pip install zero-downtime-migrations`
 
 ## Usage
 If you are currently using default postresql backend change it to:
