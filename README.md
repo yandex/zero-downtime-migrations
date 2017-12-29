@@ -7,6 +7,7 @@ while applying Django migrations using PostgreSql as database.
 
 ## Current possibilities
 - add field with default value (nullable or not)
+- create index concurrently
 
 ## Why use it
 
@@ -106,10 +107,6 @@ from zero_downtime_migrations.schema import ZeroDownTimeMixin
 class YourCustomSchemaEditor(ZeroDownTimeMixin, ...):
     ...
 ```
-
-## Possibilities
-- add field with default value
-- create index concurrently
 
 ## Run tests
 
