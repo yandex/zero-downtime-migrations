@@ -5,6 +5,9 @@
 Zero-Downtime-Migrations (ZDM) -- this is application which allow you to avoid long locks (and rewriting the whole table)
 while applying Django migrations using PostgreSql as database.
 
+## Current possibilities
+- add field with default value (nullable or not)
+
 ## Why use it
 
 We face such a problem - performing some django migrations (such as add column with default value) lock the table on
@@ -81,24 +84,21 @@ DATABASES = {
 ```
 
 If you are using your own custom backend you can:
-- Set SchemaEditorClass if you are currently using default one
+- Set `SchemaEditorClass` if you are currently using default one:
 ```
 from zero_downtime_migrations.schema import DatabaseSchemaEditor
 
 class YourCustomDatabaseWrapper(BaseWrapper):
     SchemaEditorClass = DatabaseSchemaEditor
 ```
-- Add ZeroDownTimeMixin to base classes of your DatabaseSchemaEditor
-if you are using custom one
+- Add `ZeroDownTimeMixin` to base classes of your `DatabaseSchemaEditor`
+if you are using custom one:
 ```
 from zero_downtime_migrations.schema import ZeroDownTimeMixin
 
 class YourCustomSchemaEditor(ZeroDownTimeMixin, ...):
     ...
 ```
-
-## Possibilities
-- add field with default value
 
 ## Run tests
 
