@@ -24,6 +24,7 @@ provide more stable migration process which can be continue if operation fall fo
 ## Example
 
 When adding not null column with default django will perform such sql query:
+
 `ALTER TABLE "test" ADD COLUMN "field" boolean DEFAULT True NOT NULL`
 
 Which cause postgres to rewrite the whole table and when swap it with existing one
@@ -34,7 +35,9 @@ This package will break sql above in separate commands not only to prevent the r
 table but also to add column with as small lock times as possible.
 
 First of all we will add nullable column without default and add default value to it in one transaction:
+
 `ALTER TABLE "test" ADD COLUMN "field" boolean NULL;`
+
 `ALTER TABLE "test" ALTER COLUMN "field" SET DEFAULT true;`
 
 This will add default for all new rows in table but all existing ones will be with null value in this column for now,
@@ -43,6 +46,7 @@ this operation will be quick because postgres doesn't have to fill all existing 
 Next we will count objects in table and if result if more than zero - calculate the
 size of batch in witch we will update existing rows. After that while where are still objects with null in this
 column - we will update them.
+
 While
 `SELECT COUNT(*) FROM "test" WHERE "field" is NULL;` more than zero do:
 ```WITH cte AS (
@@ -59,7 +63,9 @@ WHERE  table_.<table_pk_column> = cte.pk
 
 When we have no more rows with null in this column we can set not null and drop default (this is django default
  behavior):
+
 `ALTER TABLE "test" ALTER COLUMN "field" SET NOT NULL;`
+
 `ALTER TABLE "test" ALTER COLUMN "field" DROP DEFAULT;`
 
 So we finish add field process.
@@ -69,6 +75,7 @@ there are no long locks on table so service can work normally during this migrat
 
 ## Installation
 To install ZDM, simply run:
+
 `$ pip install zero-downtime-migrations`
 
 ## Usage
