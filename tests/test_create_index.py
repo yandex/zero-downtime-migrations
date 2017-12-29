@@ -17,7 +17,7 @@ schema_editor = DatabaseSchemaEditor
 
 
 @pytest.mark.django_db(transaction=True)
-def test_add_bool_field_no_existed_objects_success():
+def test_create_index_success():
     old_field = models.IntegerField()
     old_field.set_attributes_from_name("name")
 
