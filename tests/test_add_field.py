@@ -31,6 +31,24 @@ def column_classes(model):
     return columns
 
 
+def test_sqlmigrate_add_field_working():
+    field = models.BooleanField(default=True)
+    field.set_attributes_from_name("bool_field")
+    with CaptureQueriesContext(connection) as ctx, schema_editor(connection=connection, collect_sql=True) as editor:
+        editor.add_field(TestModel, field)
+        assert editor.collected_sql == [
+            'ALTER TABLE "test_app_testmodel" ADD COLUMN "bool_field" boolean NULL;',
+            'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" SET DEFAULT true;',
+            "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
+            '--counting estimate rows in table, if more than zero - updating in batches',
+            'SELECT COUNT(*) FROM test_app_testmodel WHERE bool_field is NULL;',
+            '--updating objects in batches while where are objects to update',
+            '\n                       WITH cte AS (\n                       SELECT id as pk\n                       FROM test_app_testmodel\n                       WHERE  bool_field is null\n                       LIMIT  1000\n                       )\n                       UPDATE test_app_testmodel table_\n                       SET bool_field = true\n                       FROM   cte\n                       WHERE  table_.id = cte.pk\n                       ;',
+            'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" SET NOT NULL;',
+            'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" DROP DEFAULT;'
+        ]
+
+
 def test_add_bool_field_no_existed_objects_success():
     columns = column_classes(TestModel)
     assert "bool_field" not in columns
