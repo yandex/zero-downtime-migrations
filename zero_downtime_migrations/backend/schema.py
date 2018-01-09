@@ -103,13 +103,14 @@ class ZeroDownTimeMixin(object):
         objects_in_table = self.count_objects_in_table(model=model)
         if objects_in_table > 0:
             objects_in_batch_count = self.get_objects_in_batch_count(objects_in_table)
-            while self.need_to_update(model=model, field=field):
+            while True:
                 with transaction.atomic():
-                    self.update_batch(model=model, field=field,
-                                      objects_in_batch_count=objects_in_batch_count,
-                                      value=default_effective_value,
-                                      )
-                    if self.collect_sql:
+                    updated = self.update_batch(model=model, field=field,
+                                                objects_in_batch_count=objects_in_batch_count,
+                                                value=default_effective_value,
+                                                )
+
+                    if updated == 0 or self.collect_sql:
                         break
 
     def set_not_null_for_field(self, model, field, nullable):
@@ -179,7 +180,8 @@ class ZeroDownTimeMixin(object):
             "value": "%s",
         }
         params = [value]
-        self.execute(sql, params)
+        updated = self.get_query_result(sql, params, row_count=True)
+        return updated
 
     def get_objects_in_batch_count(self, model_count):
         """
@@ -194,65 +196,54 @@ class ZeroDownTimeMixin(object):
             value = int((model_count / 100) * 5)
         return max(1000, value)
 
-    def get_query_result(self, sql, params=()):
-        if not self.collect_sql:
-            with self.connection.cursor() as cursor:
-                cursor.execute(sql, params)
-                return cursor.fetchall()
-
-    def parse_cursor_result(self, cursor, sql, message):
+    def get_query_result(self, sql, params=(), row_count=False):
+        """
+        Default django backend execute function does not
+        return any result so we use this custom where needed
+        """
         if self.collect_sql:
-            self.collected_sql.append(sql)
-            self.collected_sql.append(message)
-            result = 1  # For sqlmigrate purpose
+            return self.execute(sql, params)
+
+        with self.connection.cursor() as cursor:
+            cursor.execute(sql, params)
+            if row_count:
+                return cursor.rowcount
+            return cursor.fetchall()
+
+    def parse_cursor_result(self, cursor, collect_sql_value=1):
+        if self.collect_sql:
+            result = collect_sql_value  # For sqlmigrate purpose
         else:
             result = cursor[0][0]
 
         return result
 
-    def execute_table_query(self, sql, model, message):
+    def execute_table_query(self, sql, model):
         sql = sql % {
             "table": model._meta.db_table
         }
         cursor = self.get_query_result(sql)
-        return self.parse_cursor_result(cursor=cursor,
-                                        sql=sql,
-                                        message=message,
-                                        )
+        return self.parse_cursor_result(cursor=cursor)
 
     def count_objects_in_table(self, model):
-        message = ('--counting estimate rows in table, if more than zero - '
-                   'updating in batches'
-                   )
         count = self.execute_table_query(sql=self.sql_estimate_count_in_table,
                                          model=model,
-                                         message=message,
                                          )
         if count == 0:
             # Check, maybe statistic is outdated?
             # Because previous count return 0 it will be fast query
-            message = ('--if result of previous statement is zero '
-                       'getting exact rows number, if more than zero - '
-                       'updating in batches'
-                       )
             count = self.execute_table_query(sql=self.sql_count_in_table,
                                              model=model,
-                                             message=message,
                                              )
         return count
 
     def need_to_update(self, model, field):
-        message = ('--updating objects in batches while where are '
-                   'objects to update')
         sql = self.sql_count_in_table_with_null % {
             "table": model._meta.db_table,
             "column": field.name,
         }
         cursor = self.get_query_result(sql)
-        return self.parse_cursor_result(cursor=cursor,
-                                        sql=sql,
-                                        message=message,
-                                        )
+        return self.parse_cursor_result(cursor=cursor)
 
     def drop_default(self, model, field):
         set_default_sql, params = self._alter_column_default_sql(field, drop=True)
