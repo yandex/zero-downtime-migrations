@@ -26,7 +26,7 @@ DATABASES = {
 If you are using your own custom backend you can:
 - Set SchemaEditorClass if you are currently using default one
 ```
-from zero_downtime_migrations.schema import DatabaseSchemaEditor
+from zero_downtime_migrations.backend.schema import DatabaseSchemaEditor
 
 class YourCustomDatabaseWrapper(BaseWrapper):
     SchemaEditorClass = DatabaseSchemaEditor
@@ -34,7 +34,7 @@ class YourCustomDatabaseWrapper(BaseWrapper):
 - Add ZeroDownTimeMixin to base classes of your DatabaseSchemaEditor
 if you are using custom one
 ```
-from zero_downtime_migrations.schema import ZeroDownTimeMixin
+from zero_downtime_migrations.backend.schema import ZeroDownTimeMixin
 
 class YourCustomSchemaEditor(ZeroDownTimeMixin, ...):
     ...
