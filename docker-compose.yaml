@@ -8,5 +8,4 @@ services:
     depends_on:
       - db
     volumes:
-      - ".:/tests:ro"
-      - ".:/test_app:ro"
+      - ".:/src:ro"
