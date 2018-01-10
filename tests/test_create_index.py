@@ -23,7 +23,7 @@ def test_create_index_success():
 
     field = models.IntegerField(db_index=True)
     field.set_attributes_from_name("name")
-    pattern = r'CREATE INDEX CONCURRENTLY "test_app_testmodel_name_[\w]{15,16}_uniq" ON "test_app_testmodel" \("name"\)'
+    pattern = r'CREATE INDEX CONCURRENTLY "test_app_testmodel_name_\w+(_uniq)?" ON "test_app_testmodel" \("name"\)'
     with CaptureQueriesContext(connection) as ctx, schema_editor(connection=connection) as editor:
         editor.alter_field(TestModel, old_field, field)
         assert len(ctx.captured_queries) == 1
@@ -36,7 +36,7 @@ def test_sqlmigrate_create_index_working():
 
     field = models.IntegerField(db_index=True)
     field.set_attributes_from_name("name")
-    pattern = r'CREATE INDEX CONCURRENTLY "test_app_testmodel_name_[\w]{15,16}_uniq" ON "test_app_testmodel" \("name"\)'
+    pattern = r'CREATE INDEX CONCURRENTLY "test_app_testmodel_name_\w+(_uniq)?" ON "test_app_testmodel" \("name"\)'
     with schema_editor(connection=connection, collect_sql=True) as editor:
         editor.alter_field(TestModel, old_field, field)
         assert len(editor.collected_sql) == 1

@@ -304,6 +304,9 @@ class ZeroDownTimeMixin(object):
 
     def execute(self, sql, params=()):
         exit_atomic = False
+        # Account for non-string statement objects.
+        sql = str(sql)
+
         if 'CREATE INDEX' in sql:
             exit_atomic = True
             sql = sql.replace('CREATE INDEX', 'CREATE INDEX CONCURRENTLY')
