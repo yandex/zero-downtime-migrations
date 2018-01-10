@@ -2,5 +2,8 @@ sudo: required
 
 language: python
 
+services:
+  - docker
+
 script:
   - docker-compose run tox
