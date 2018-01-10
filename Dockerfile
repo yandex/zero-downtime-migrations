@@ -1,4 +1,4 @@
 FROM themattrix/tox
 
-COPY tests/ app/tests/
+COPY ./Smosker/zero-downtime-migrations/tests/ app/tests/
 
