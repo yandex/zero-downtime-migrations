@@ -48,8 +48,7 @@ Next we will count objects in table and if result if more than zero - calculate 
 size of batch in witch we will update existing rows. After that while where are still objects with null in this
 column - we will update them.
 
-While
-`SELECT COUNT(*) FROM "test" WHERE "field" is NULL;` more than zero do:
+While result of following statement is more than zero:
 ```WITH cte AS (
 SELECT <table_pk_column> as pk
 FROM "test"
