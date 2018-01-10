@@ -1,3 +1,0 @@
-FROM themattrix/tox
-
-ONBUILD COPY ./Smosker/zero-downtime-migrations/tests/ app/tests/
