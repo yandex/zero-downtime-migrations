@@ -46,6 +46,8 @@ class ZeroDownTimeMixin(object):
             # Checking which actions we should perform - maybe this operation was run
             # before and it crashed for some reason
             actions = self.get_actions_to_perform(model, field)
+            if len(actions) == 0:
+                return
 
             # Saving initial values
             default_effective_value = self.effective_default(field)
