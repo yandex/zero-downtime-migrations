@@ -5,9 +5,5 @@ language: python
 services:
   - docker
 
-before_install:
- - ls
- - pwd
-
 script:
   - docker-compose run tox
