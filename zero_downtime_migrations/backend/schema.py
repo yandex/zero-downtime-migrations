@@ -137,20 +137,19 @@ class ZeroDownTimeMixin(object):
 
         if data is not None and len(data) == 1:
             existed_nullable, existed_type, existed_default = data[0]
-            need_to_update = self.need_to_update(model=model, field=field)
 
             questioner = InteractiveMigrationQuestioner()
             question_template = ('It look like column "{}" in table "{}" already exist with following '
-                                 'parameters: TYPE: "{}", DEFAULT: "{}", NULLABLE: "{}". '
-                                 'Rows in table where column is null: "{}"'
+                                 'parameters: TYPE: "{}", DEFAULT: "{}", NULLABLE: "{}".'
                                  )
             question = question_template.format(field.name, model._meta.db_table,
                                                 existed_type, existed_default,
-                                                existed_nullable, need_to_update,
+                                                existed_nullable,
                                                 )
             choices = ('abort migration',
                        'drop column and run migration from beginning',
                        'manually choose action to start from',
+                       'show how many rows still need to be updated',
                        'mark operation as successful and proceed to next operation',
                        )
 
@@ -164,6 +163,13 @@ class ZeroDownTimeMixin(object):
                 result = questioner._choice_input(question, actions)
                 actions = actions[result-1:]
             elif result == 4:
+                question = 'Rows in table where column is null: "{}"'
+                need_to_update = self.need_to_update(model=model, field=field)
+                questioner._choice_input(question.format(need_to_update),
+                                         ('Continue', )
+                                         )
+                return self.get_actions_to_perform(model, field)
+            elif result == 5:
                 actions = []
         return actions
 
