@@ -1,5 +1,7 @@
 ## UNDER DEVELOPMENT NOW
 
+[![Build Status](https://travis-ci.org/Smosker/zero-downtime-migrations.svg?branch=master)](https://travis-ci.org/Smosker/zero-downtime-migrations)
+
 ## Description
 
 Zero-Downtime-Migrations (ZDM) -- this is application which allow you to avoid long locks (and rewriting the whole table)
@@ -92,7 +94,7 @@ DATABASES = {
 If you are using your own custom backend you can:
 - Set `SchemaEditorClass` if you are currently using default one:
 ```
-from zero_downtime_migrations.schema import DatabaseSchemaEditor
+from zero_downtime_migrations.backend.schema import DatabaseSchemaEditor
 
 class YourCustomDatabaseWrapper(BaseWrapper):
     SchemaEditorClass = DatabaseSchemaEditor
@@ -100,7 +102,7 @@ class YourCustomDatabaseWrapper(BaseWrapper):
 - Add `ZeroDownTimeMixin` to base classes of your `DatabaseSchemaEditor`
 if you are using custom one:
 ```
-from zero_downtime_migrations.schema import ZeroDownTimeMixin
+from zero_downtime_migrations.backend.schema import ZeroDownTimeMixin
 
 class YourCustomSchemaEditor(ZeroDownTimeMixin, ...):
     ...

@@ -6,7 +6,6 @@ import pytest
 
 from django.db import models
 from django.db import connections
-from django.test.utils import CaptureQueriesContext
 
 from zero_downtime_migrations.backend.schema import DatabaseSchemaEditor
 from test_app.models import TestModel
@@ -19,7 +18,7 @@ schema_editor = DatabaseSchemaEditor
 def test_sqlmigrate_working():
     field = models.BooleanField(default=True)
     field.set_attributes_from_name("bool_field")
-    with CaptureQueriesContext(connection) as ctx, schema_editor(connection=connection, collect_sql=True) as editor:
+    with schema_editor(connection=connection, collect_sql=True) as editor:
         editor.add_field(TestModel, field)
         assert editor.collected_sql == [
             "SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where table_name = 'test_app_testmodel' and column_name = 'bool_field';",
