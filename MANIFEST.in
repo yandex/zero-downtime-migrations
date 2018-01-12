@@ -2,8 +2,6 @@ include AUTHORS
 include README.md
 include LICENSE
 
-recursive-exclude tests *
-recursive-exclude test_app *
 recursive-exclude .tox *
 recursive-exclude .cache *
 recursive-exclude .git *
