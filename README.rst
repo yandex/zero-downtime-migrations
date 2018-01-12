@@ -12,6 +12,7 @@
     :alt: Build Status
     :target: https://travis-ci.org/Smosker/zero-downtime-migrations
 
+.. highlight:: python
 
 Zero-Downtime-Migrations
 ========================
@@ -84,9 +85,8 @@ While result of following statement is more than zero:
     FROM   cte
     WHERE  table_.<table_pk_column> = cte.pk
 
-
 When we have no more rows with null in this column we can set not null and drop default (this is django default
- behavior):
+behavior):
 
 ::
 
@@ -122,6 +122,7 @@ If you are currently using default postresql backend change it to:
 
 
 If you are using your own custom backend you can:
+
 * Set SchemaEditorClass if you are currently using default one:
 
 ::
@@ -132,8 +133,7 @@ If you are using your own custom backend you can:
         SchemaEditorClass = DatabaseSchemaEditor
 
 
-* Add ZeroDownTimeMixin to base classes of your DatabaseSchemaEditor
-if you are using custom one:
+* Add ZeroDownTimeMixin to base classes of your DatabaseSchemaEditor if you are using custom one:
 
 ::
 
