@@ -1,6 +1,20 @@
-## UNDER DEVELOPMENT NOW
+**UNDER DEVELOPMENT NOW**
 
-[![Build Status](https://travis-ci.org/Smosker/zero-downtime-migrations.svg?branch=master)](https://travis-ci.org/Smosker/zero-downtime-migrations)
+.. image:: https://img.shields.io/pypi/v/zero-downtime-migrations.svg?style=flat
+    :alt: PyPI Version
+    :target: https://pypi.python.org/pypi/zero-downtime-migrations
+
+.. image:: https://img.shields.io/pypi/pyversions/zero-downtime-migrations.svg
+    :alt: Supported Python versions
+    :target: https://pypi.python.org/pypi/zero-downtime-migrations
+
+.. image:: https://travis-ci.org/Smosker/zero-downtime-migrations.svg?branch=master
+    :alt: Build Status
+    :target: https://travis-ci.org/Smosker/zero-downtime-migrations
+
+
+Zero-Downtime-Migrations
+========================
 
 ## Description
 
@@ -8,8 +22,8 @@ Zero-Downtime-Migrations (ZDM) -- this is application which allow you to avoid l
 while applying Django migrations using PostgreSql as database.
 
 ## Current possibilities
-- add field with default value (nullable or not)
-- create index concurrently (you should always check the index status after
+* add field with default value (nullable or not)
+* create index concurrently (you should always check the index status after
 creating https://www.postgresql.org/docs/9.1/static/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY)
 
 ## Why use it

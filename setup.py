@@ -1,6 +1,18 @@
 # -*- coding: utf-8 -*-
 
+import codecs
+import os
+
 from setuptools import setup, find_packages
+
+
+# Utility function to read the README file.
+# Used for the long_description.  It's nice, because now 1) we have a top level
+# README file and 2) it's easier to type in the README file than to put a raw
+# string in below ...
+def read(fname):
+    file_path = os.path.join(os.path.dirname(__file__), fname)
+    return codecs.open(file_path, encoding='utf-8').read()
 
 
 setup(
@@ -11,6 +23,7 @@ setup(
     license='BSD-3-Clause',
     url='https://github.com/Smosker/zero-downtime-migrations',
     description='django migrations without long locks',
+    long_description=read('README.rst'),
     classifiers=['Development Status :: 3 - Alpha',
                  'Framework :: Django',
                  'Framework :: Django :: 1.8',
