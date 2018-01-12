@@ -302,6 +302,24 @@ class ZeroDownTimeMixin(object):
             params,
         )
 
+    def execute(self, sql, params=()):
+        exit_atomic = False
+        # Account for non-string statement objects.
+        sql = str(sql)
+
+        if 'CREATE INDEX' in sql:
+            exit_atomic = True
+            sql = sql.replace('CREATE INDEX', 'CREATE INDEX CONCURRENTLY')
+        atomic = self.connection.in_atomic_block
+        if exit_atomic and atomic:
+            self.atomic.__exit__(None, None, None)
+
+        super(ZeroDownTimeMixin, self).execute(sql, params)
+
+        if exit_atomic and atomic:
+            self.atomic = transaction.atomic(self.connection.alias)
+            self.atomic.__enter__()
+
 
 class DatabaseSchemaEditor(ZeroDownTimeMixin, BaseEditor):
     pass
