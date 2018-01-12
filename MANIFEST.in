@@ -6,3 +6,4 @@ recursive-exclude .tox *
 recursive-exclude .cache *
 recursive-exclude .git *
 recursive-exclude tests *
+recursive-exclude test_app *
