@@ -27,7 +27,7 @@ while applying Django migrations using PostgreSql as database.
 Current possibilities
 --------------------------
 * add field with default value (nullable or not)
-* create index concurrently (you should always `check <https://www.postgresql.org/docs/9.1/static/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY>`_. the index status after creating)
+* create index concurrently (you should always `check <https://www.postgresql.org/docs/9.1/static/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY>`_ the index status after creating)
 
 Why use it
 ----------
