@@ -112,7 +112,7 @@ class ZeroDownTimeMixin(object):
                                                 value=default_effective_value,
                                                 )
 
-                    if updated == 0 or self.collect_sql:
+                    if updated is None or updated == 0:
                         break
 
     def set_not_null_for_field(self, model, field, nullable):
@@ -219,14 +219,13 @@ class ZeroDownTimeMixin(object):
             cursor.execute(sql, params)
             if row_count:
                 return cursor.rowcount
-            return cursor.fetchall()
+            return cursor.fetchone()
 
-    def parse_cursor_result(self, cursor, collect_sql_value=1):
+    def parse_cursor_result(self, cursor, place=0, collect_sql_value=1,):
         if self.collect_sql:
             result = collect_sql_value  # For sqlmigrate purpose
         else:
-            result = cursor[0][0]
-
+            result = cursor[place]
         return result
 
     def execute_table_query(self, sql, model):
