@@ -27,8 +27,7 @@ while applying Django migrations using PostgreSql as database.
 Current possibilities
 --------------------------
 * add field with default value (nullable or not)
-* create index concurrently (you should always check the index status after
-creating https://www.postgresql.org/docs/9.1/static/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY)
+* create index concurrently (you should always `check <https://www.postgresql.org/docs/9.1/static/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY>`_. the index status after creating)
 
 Why use it
 ----------
@@ -95,8 +94,7 @@ When adding not null column with default django will perform such sql query:
 
     ALTER TABLE "test" ADD COLUMN "field" boolean DEFAULT True NOT NULL`
 
-Which cause postgres to rewrite the whole table and when swap it with existing one
-https://docs.djangoproject.com/en/2.0/topics/migrations/#postgresql and during this period
+Which cause postgres to rewrite the whole table and when swap it with existing one (`note from django documentation <https://docs.djangoproject.com/en/dev/topics/migrations/#postgresql>`_) and during this period
 it will hold exclusive lock on write/read on this table.
 
 This package will break sql above in separate commands not only to prevent the rewriting of whole
