@@ -13,8 +13,6 @@ UNDER DEVELOPMENT NOW
     :alt: Build Status
     :target: https://travis-ci.org/Smosker/zero-downtime-migrations
 
-.. highlight:: python
-
 
 Zero-Downtime-Migrations
 ========================
