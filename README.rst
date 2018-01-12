@@ -133,7 +133,7 @@ If you are using your own custom backend you can:
         SchemaEditorClass = DatabaseSchemaEditor
 
 
-* Add ::`ZeroDownTimeMixin` to base classes of your ::`DatabaseSchemaEditor` if you are using custom one:
+* Add :code:`ZeroDownTimeMixin` to base classes of your :code:`DatabaseSchemaEditor` if you are using custom one:
 
 ::
 
