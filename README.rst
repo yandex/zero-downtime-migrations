@@ -133,14 +133,14 @@ If you are using your own custom backend you can:
         SchemaEditorClass = DatabaseSchemaEditor
 
 
-* Add ZeroDownTimeMixin to base classes of your DatabaseSchemaEditor if you are using custom one:
+* Add `ZeroDownTimeMixin` to base classes of your `DatabaseSchemaEditor` if you are using custom one:
 
 ::
 
     from zero_downtime_migrations.backend.schema import ZeroDownTimeMixin
 
     class YourCustomSchemaEditor(ZeroDownTimeMixin, ...):
-    ...
+        ...
 
 Run tests
 ---------
