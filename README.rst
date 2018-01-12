@@ -19,7 +19,7 @@ Zero-Downtime-Migrations
 
 Description
 -----------
-Zero-Downtime-Migrations (ZDM) -- this is application which allow you to avoid long locks (and rewriting the whole table)
+*Zero-Downtime-Migrations (ZDM)* -- this is application which allow you to avoid long locks (and rewriting the whole table)
 while applying Django migrations using PostgreSql as database.
 
 Current possibilities
@@ -85,7 +85,7 @@ While result of following statement is more than zero:
     FROM   cte
     WHERE  table_.<table_pk_column> = cte.pk
 
-When we have no more rows with null in this column we can set not null and drop default (this is django default
+When we have no more rows with null in this column we can set not null and drop default (which is django default
 behavior):
 
 ::
@@ -100,7 +100,7 @@ there are no long locks on table so service can work normally during this migrat
 
 Installation
 ------------
-To install ZDM, simply run:
+To install :code:`ZDM`, simply run:
 
 ::
 
@@ -123,7 +123,7 @@ If you are currently using default postresql backend change it to:
 
 If you are using your own custom backend you can:
 
-* Set SchemaEditorClass if you are currently using default one:
+* Set :code:`SchemaEditorClass` if you are currently using default one:
 
 ::
 
