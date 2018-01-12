@@ -15,7 +15,7 @@
 .. highlight:: python
 .. role:: red
 
-**:red:`UNDER DEVELOPMENT NOW`**
+:red:`UNDER DEVELOPMENT NOW`
 
 Zero-Downtime-Migrations
 ========================
