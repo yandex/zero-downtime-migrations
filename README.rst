@@ -1,4 +1,4 @@
-**UNDER DEVELOPMENT NOW**
+**:red:`UNDER DEVELOPMENT NOW`**
 
 .. image:: https://img.shields.io/pypi/v/zero-downtime-migrations.svg?style=flat
     :alt: PyPI Version
@@ -40,6 +40,50 @@ psql and when fake migration.
 
 So in the end we have an idea of writing this package so it can prevent long locks on table and also
 provide more stable migration process which can be continue if operation fall for some reason.
+
+Installation
+------------
+To install :code:`ZDM`, simply run:
+
+::
+
+    pip install zero-downtime-migrations
+
+Usage
+-----
+If you are currently using default postresql backend change it to:
+
+::
+
+    DATABASES = {
+         'default': {
+             'ENGINE': 'zero_downtime_migrations.backend',
+             ...
+         }
+         ...
+     }
+
+
+If you are using your own custom backend you can:
+
+* Set :code:`SchemaEditorClass` if you are currently using default one:
+
+::
+
+    from zero_downtime_migrations.backend.schema import DatabaseSchemaEditor
+
+    class YourCustomDatabaseWrapper(BaseWrapper):
+        SchemaEditorClass = DatabaseSchemaEditor
+
+
+* Add :code:`ZeroDownTimeMixin` to base classes of your :code:`DatabaseSchemaEditor` if you are using custom one:
+
+::
+
+    from zero_downtime_migrations.backend.schema import ZeroDownTimeMixin
+
+    class YourCustomSchemaEditor(ZeroDownTimeMixin, ...):
+        ...
 
 Example
 -------
@@ -96,51 +140,6 @@ behavior):
 So we finish add field process.
 It will be definitely more time consuming than basic variant with one sql statement, but in this approach
 there are no long locks on table so service can work normally during this migrations process.
-
-
-Installation
-------------
-To install :code:`ZDM`, simply run:
-
-::
-
-    pip install zero-downtime-migrations
-
-Usage
------
-If you are currently using default postresql backend change it to:
-
-::
-
-    DATABASES = {
-         'default': {
-             'ENGINE': 'zero_downtime_migrations.backend',
-             ...
-         }
-         ...
-     }
-
-
-If you are using your own custom backend you can:
-
-* Set :code:`SchemaEditorClass` if you are currently using default one:
-
-::
-
-    from zero_downtime_migrations.backend.schema import DatabaseSchemaEditor
-
-    class YourCustomDatabaseWrapper(BaseWrapper):
-        SchemaEditorClass = DatabaseSchemaEditor
-
-
-* Add :code:`ZeroDownTimeMixin` to base classes of your :code:`DatabaseSchemaEditor` if you are using custom one:
-
-::
-
-    from zero_downtime_migrations.backend.schema import ZeroDownTimeMixin
-
-    class YourCustomSchemaEditor(ZeroDownTimeMixin, ...):
-        ...
 
 Run tests
 ---------
