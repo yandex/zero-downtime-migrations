@@ -1,4 +1,5 @@
-
+UNDER DEVELOPMENT NOW
+=====================
 
 .. image:: https://img.shields.io/pypi/v/zero-downtime-migrations.svg?style=flat
     :alt: PyPI Version
@@ -13,9 +14,7 @@
     :target: https://travis-ci.org/Smosker/zero-downtime-migrations
 
 .. highlight:: python
-.. role:: red
 
-:red:`UNDER DEVELOPMENT NOW`
 
 Zero-Downtime-Migrations
 ========================
