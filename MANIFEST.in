@@ -1,5 +1,5 @@
 include AUTHORS
-include README.md
+include README.rst
 include LICENSE
 
 recursive-exclude .tox *
