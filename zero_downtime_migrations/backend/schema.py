@@ -44,7 +44,7 @@ class ZeroDownTimeMixin(object):
         if not (isinstance(field, RelatedField) and
                         field.default is NOT_PROVIDED):
             # Checking which actions we should perform - maybe this operation was run
-            # before and it crashed for some reason
+            # before and it had crashed for some reason
             actions = self.get_actions_to_perform(model, field)
             if len(actions) == 0:
                 return
@@ -121,6 +121,13 @@ class ZeroDownTimeMixin(object):
         if nullable is False:
             self.set_not_null(model, field)
 
+    def get_column_info(self, model, field):
+        sql = self.sql_check_column_status % {
+            "table": model._meta.db_table,
+            "column": field.name,
+        }
+        return self.get_query_result(sql)
+
     def get_actions_to_perform(self, model, field):
         actions = [
             'add field with default',
@@ -131,14 +138,10 @@ class ZeroDownTimeMixin(object):
 
         # Checking maybe this column already exists
         # if so asking user what to do next
-        sql = self.sql_check_column_status % {
-            "table": model._meta.db_table,
-            "column": field.name,
-        }
-        data = self.get_query_result(sql)
+        column_info = self.get_column_info(model, field)
 
-        if data is not None and len(data) == 1:
-            existed_nullable, existed_type, existed_default = data[0]
+        if column_info is not None and len(column_info) == 1:
+            existed_nullable, existed_type, existed_default = column_info[0]
 
             questioner = InteractiveMigrationQuestioner()
             question_template = ('It look like column "{}" in table "{}" already exist with following '
@@ -188,8 +191,7 @@ class ZeroDownTimeMixin(object):
             "value": "%s",
         }
         params = [value]
-        updated = self.get_query_result(sql, params, row_count=True)
-        return updated
+        return self.get_query_result(sql, params, row_count=True)
 
     def get_objects_in_batch_count(self, model_count):
         """
@@ -198,7 +200,7 @@ class ZeroDownTimeMixin(object):
         :param model_count: int
         :return: int
         """
-        if model_count > 200000:
+        if model_count > 500000:
             value = 10000
         else:
             value = int((model_count / 100) * 5)
@@ -210,6 +212,7 @@ class ZeroDownTimeMixin(object):
         return any result so we use this custom where needed
         """
         if self.collect_sql:
+            # in collect_sql case use django function logic
             return self.execute(sql, params)
 
         with self.connection.cursor() as cursor:

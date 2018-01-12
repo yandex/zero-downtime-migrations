@@ -101,6 +101,7 @@ from zero_downtime_migrations.backend.schema import DatabaseSchemaEditor
 class YourCustomDatabaseWrapper(BaseWrapper):
     SchemaEditorClass = DatabaseSchemaEditor
 ```
+
 - Add `ZeroDownTimeMixin` to base classes of your `DatabaseSchemaEditor`
 if you are using custom one:
 ```
