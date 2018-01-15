@@ -1,5 +1,5 @@
 FROM themattrix/tox
 
-ONBUILD COPY test_app/ /app/.tox/test_app/
+ONBUILD COPY test_app/ /test/test_app/
 
-ONBUILD RUN export PYTHONPATH=$PYTHONPATH:/app/.tox/
+ONBUILD RUN export PYTHONPATH=$PYTHONPATH:/test
