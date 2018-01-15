@@ -12,7 +12,7 @@ from django.test.utils import CaptureQueriesContext
 from freezegun import freeze_time
 
 from zero_downtime_migrations.backend.schema import DatabaseSchemaEditor
-from test_app.models import TestModel
+from .test_app.models import TestModel
 
 pytestmark = pytest.mark.django_db
 connection = connections['default']

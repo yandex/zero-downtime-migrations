@@ -8,7 +8,7 @@ from django.db import models
 from django.db import connections
 
 from zero_downtime_migrations.backend.schema import DatabaseSchemaEditor
-from test_app.models import TestModel
+from .test_app.models import TestModel
 
 pytestmark = pytest.mark.django_db
 connection = connections['default']
