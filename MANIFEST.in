@@ -2,6 +2,7 @@ include AUTHORS
 include README.rst
 include LICENSE
 
+recursive-include tests *
 recursive-exclude .tox *
 recursive-exclude .cache *
 recursive-exclude .git *
