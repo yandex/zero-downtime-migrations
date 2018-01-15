@@ -10,7 +10,7 @@ from django.db import connections
 from django.test.utils import CaptureQueriesContext
 
 from zero_downtime_migrations.backend.schema import DatabaseSchemaEditor
-from .test_app.models import TestModel
+from test_app.models import TestModel
 
 connection = connections['default']
 schema_editor = DatabaseSchemaEditor
