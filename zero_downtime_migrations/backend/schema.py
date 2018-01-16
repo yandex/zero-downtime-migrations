@@ -140,8 +140,8 @@ class ZeroDownTimeMixin(object):
         # if so asking user what to do next
         column_info = self.get_column_info(model, field)
 
-        if column_info is not None and len(column_info) == 1:
-            existed_nullable, existed_type, existed_default = column_info[0]
+        if column_info is not None:
+            existed_nullable, existed_type, existed_default = column_info
 
             questioner = InteractiveMigrationQuestioner()
             question_template = ('It look like column "{}" in table "{}" already exist with following '
