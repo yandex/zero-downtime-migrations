@@ -34,7 +34,7 @@ def column_classes(model):
 def test_sqlmigrate_add_field_working():
     field = models.BooleanField(default=True)
     field.set_attributes_from_name("bool_field")
-    with CaptureQueriesContext(connection) as ctx, schema_editor(connection=connection, collect_sql=True) as editor:
+    with schema_editor(connection=connection, collect_sql=True) as editor:
         editor.add_field(TestModel, field)
         assert editor.collected_sql == [
             "SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where table_name = 'test_app_testmodel' and column_name = 'bool_field';",
@@ -60,7 +60,8 @@ def test_add_bool_field_no_existed_objects_success():
     columns = column_classes(TestModel)
     assert columns['bool_field'][0] == "BooleanField"
     queries = [query_data['sql'] for query_data in ctx.captured_queries if 'test_app' in query_data['sql']]
-    expected_queries = ["SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where table_name = 'test_app_testmodel' and column_name = 'bool_field';",
+    expected_queries = [("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where "
+                         "table_name = 'test_app_testmodel' and column_name = 'bool_field';"),
                         'ALTER TABLE "test_app_testmodel" ADD COLUMN "bool_field" boolean NULL',
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" SET DEFAULT true',
                         "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
@@ -84,7 +85,8 @@ def test_add_bool_field_with_existed_object_success(test_object):
 
     columns = column_classes(TestModel)
     assert columns['bool_field'][0] == "BooleanField"
-    expected_queries = ["SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where table_name = 'test_app_testmodel' and column_name = 'bool_field';",
+    expected_queries = [("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where "
+                         "table_name = 'test_app_testmodel' and column_name = 'bool_field';"),
                         'ALTER TABLE "test_app_testmodel" ADD COLUMN "bool_field" boolean NULL',
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" SET DEFAULT true',
                         "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
@@ -137,7 +139,8 @@ def test_add_bool_field_with_existed_many_objects_success(test_object, test_obje
 
     columns = column_classes(TestModel)
     assert columns['bool_field'][0] == "BooleanField"
-    expected_queries = ["SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where table_name = 'test_app_testmodel' and column_name = 'bool_field';",
+    expected_queries = [("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where "
+                         "table_name = 'test_app_testmodel' and column_name = 'bool_field';"),
                         'ALTER TABLE "test_app_testmodel" ADD COLUMN "bool_field" boolean NULL',
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" SET DEFAULT true',
                         "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
@@ -195,7 +198,8 @@ def test_add_datetime_field_no_existed_objects_success():
 
     columns = column_classes(TestModel)
     assert columns['datetime_field'][0] == "DateTimeField"
-    expected_queries = ["SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where table_name = 'test_app_testmodel' and column_name = 'datetime_field';",
+    expected_queries = [("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where table_name "
+                         "= 'test_app_testmodel' and column_name = 'datetime_field';"),
                         'ALTER TABLE "test_app_testmodel" ADD COLUMN "datetime_field" timestamp with time zone NULL',
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" SET DEFAULT \'2017-12-15T00:21:34+00:00\'::timestamptz',
                         "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
@@ -220,7 +224,8 @@ def test_add_datetime_field_with_existed_object_success(test_object):
 
     columns = column_classes(TestModel)
     assert columns['datetime_field'][0] == "DateTimeField"
-    expected_queries = ["SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where table_name = 'test_app_testmodel' and column_name = 'datetime_field';",
+    expected_queries = [("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where "
+                         "table_name = 'test_app_testmodel' and column_name = 'datetime_field';"),
                         'ALTER TABLE "test_app_testmodel" ADD COLUMN "datetime_field" timestamp with time zone NULL',
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" SET DEFAULT \'2017-12-15T00:21:34+00:00\'::timestamptz',
                         "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
@@ -274,7 +279,8 @@ def test_add_datetime_field_with_existed_many_objects_success(test_object, test_
 
     columns = column_classes(TestModel)
     assert columns['datetime_field'][0] == "DateTimeField"
-    expected_queries = ["SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where table_name = 'test_app_testmodel' and column_name = 'datetime_field';",
+    expected_queries = [("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where "
+                         "table_name = 'test_app_testmodel' and column_name = 'datetime_field';"),
                         'ALTER TABLE "test_app_testmodel" ADD COLUMN "datetime_field" timestamp with time zone NULL',
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" SET DEFAULT \'2017-12-15T00:21:34+00:00\'::timestamptz',
                         "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
