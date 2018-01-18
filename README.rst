@@ -31,14 +31,14 @@ Why use it
 ----------
 We face such a problem - performing some django migrations (such as add column with default value) lock the table on
 read/write, so its impossible for our services to work properly during this periods. It can be acceptable on rather small
-tables (less than million rows), but even on them it can be painfull if services is high loaded.
-But we have a lot of tables with more than 50 millions rows, and applying migrations on such table lock it for
-more than an hour, which is totally unacceptable. Also during this time consuming operations migration rather often fail
+tables (less than million rows), but even on them it can be painful if service is high loaded.
+But we have a lot of tables with more than 50 millions rows, and applying migrations on such a table lock it for
+more than an hour, which is totally unacceptable. Also, during this time consuming operations, migration rather often fail
 because of different errors (such as TimeoutError) and we have to start it from scratch or run sql manually thought
 psql and when fake migration.
 
 So in the end we have an idea of writing this package so it can prevent long locks on table and also
-provide more stable migration process which can be continue if operation fall for some reason.
+provide more stable migration process which can be continued if operation fall for some reason.
 
 Installation
 ------------
@@ -92,13 +92,13 @@ When adding not null column with default django will perform such sql query:
 
     ALTER TABLE "test" ADD COLUMN "field" boolean DEFAULT True NOT NULL`
 
-Which cause postgres to rewrite the whole table and when swap it with existing one (`note from django documentation <https://docs.djangoproject.com/en/dev/topics/migrations/#postgresql>`_) and during this period
-it will hold exclusive lock on write/read on this table.
+Which cause postgres to rewrite the whole table and when swap it with existing one (`note from django documentation <https://docs.djangoproject.com/en/dev/topics/migrations/#postgresql>`_)
+and during this period it will hold exclusive lock on write/read on this table.
 
 This package will break sql above in separate commands not only to prevent the rewriting of whole
 table but also to add column with as small lock times as possible.
 
-First of all we will add nullable column without default and add default value to it in one transaction:
+First of all we will add nullable column without default and add default value to it in separate command in one transaction:
 
 ::
 
