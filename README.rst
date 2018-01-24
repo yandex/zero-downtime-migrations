@@ -90,7 +90,7 @@ When adding not null column with default django will perform such sql query:
 
 ::
 
-    ALTER TABLE "test" ADD COLUMN "field" boolean DEFAULT True NOT NULL`
+    ALTER TABLE "test" ADD COLUMN "field" boolean DEFAULT True NOT NULL;
 
 Which cause postgres to rewrite the whole table and when swap it with existing one (`note from django documentation <https://docs.djangoproject.com/en/dev/topics/migrations/#postgresql>`_)
 and during this period it will hold exclusive lock on write/read on this table.
