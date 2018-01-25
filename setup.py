@@ -17,14 +17,14 @@ def read(fname):
 
 setup(
     name='zero-downtime-migrations',
-    version='0.1',
+    version='0.2',
     author='Vladimir Koljasinskij',
     author_email='smosker@gmail.com',
     license='BSD-3-Clause',
     url='https://github.com/Smosker/zero-downtime-migrations',
     description='django migrations without long locks',
     long_description=read('README.rst'),
-    classifiers=['Development Status :: 3 - Alpha',
+    classifiers=['Development Status :: 4 - Beta',
                  'Framework :: Django',
                  'Framework :: Django :: 1.8',
                  'Framework :: Django :: 1.9',
