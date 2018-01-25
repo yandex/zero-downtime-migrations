@@ -1,6 +1,3 @@
-UNDER DEVELOPMENT NOW
-=====================
-
 .. image:: https://img.shields.io/pypi/v/zero-downtime-migrations.svg?style=flat
     :alt: PyPI Version
     :target: https://pypi.python.org/pypi/zero-downtime-migrations

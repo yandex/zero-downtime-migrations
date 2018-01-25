@@ -111,7 +111,7 @@ class ZeroDownTimeMixin(object):
                                                 objects_in_batch_count=objects_in_batch_count,
                                                 value=default_effective_value,
                                                 )
-
+                    print('Update {} rows in {}'.format(updated, model._meta.db_table))
                     if updated is None or updated == 0:
                         break
 
