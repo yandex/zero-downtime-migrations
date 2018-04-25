@@ -41,8 +41,9 @@ class ZeroDownTimeMixin(object):
                                "where table_name = '%(table)s' and column_name = '%(column)s';")
 
     def add_field(self, model, field):
-        if not (isinstance(field, RelatedField) and
-                        field.default is NOT_PROVIDED):
+        if isinstance(field, RelatedField) or field.default is NOT_PROVIDED:
+            return super(ZeroDownTimeMixin, self).add_field(model, field)
+        else:
             # Checking which actions we should perform - maybe this operation was run
             # before and it had crashed for some reason
             actions = self.get_actions_to_perform(model, field)
@@ -84,8 +85,6 @@ class ZeroDownTimeMixin(object):
                 self.atomic = transaction.atomic(self.connection.alias)
                 self.atomic.__enter__()
 
-        else:
-            return super(ZeroDownTimeMixin, self).add_field(model, field)
 
     def add_field_with_default(self, model, field, default_effective_value):
         """
