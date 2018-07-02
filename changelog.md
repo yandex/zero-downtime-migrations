@@ -1,3 +1,9 @@
+0.3
+---
+  * fix issue with default values
+
+[Vladimir Koljasinskij](smosker@gmail.com) 2018-04-25 14:16:27+03:00
+
 0.2
 ---
  * Update readme, add output info while performing update  [ https://github.com/Smosker/zero-downtime-migrations/commit/ef48514 ]

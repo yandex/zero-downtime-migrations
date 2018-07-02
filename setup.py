@@ -17,7 +17,7 @@ def read(fname):
 
 setup(
     name='zero-downtime-migrations',
-    version='0.2',
+    version='0.3',
     author='Vladimir Koljasinskij',
     author_email='smosker@gmail.com',
     license='BSD-3-Clause',
