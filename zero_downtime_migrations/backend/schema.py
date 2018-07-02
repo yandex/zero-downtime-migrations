@@ -85,7 +85,6 @@ class ZeroDownTimeMixin(object):
                 self.atomic = transaction.atomic(self.connection.alias)
                 self.atomic.__enter__()
 
-
     def add_field_with_default(self, model, field, default_effective_value):
         """
         Adding field with default in two separate
@@ -155,6 +154,7 @@ class ZeroDownTimeMixin(object):
                        'manually choose action to start from',
                        'show how many rows still need to be updated',
                        'mark operation as successful and proceed to next operation',
+                       'drop column and run migration from standard SchemaEditor',
                        )
 
             result = questioner._choice_input(question, choices)
@@ -175,6 +175,9 @@ class ZeroDownTimeMixin(object):
                 return self.get_actions_to_perform(model, field)
             elif result == 5:
                 actions = []
+            elif result == 6:
+                self.remove_field(model, field)
+                return super(ZeroDownTimeMixin, self).add_field(model, field)
         return actions
 
     def get_pk_column_name(self, model):
