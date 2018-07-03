@@ -177,7 +177,8 @@ class ZeroDownTimeMixin(object):
                 actions = []
             elif result == 6:
                 self.remove_field(model, field)
-                return super(ZeroDownTimeMixin, self).add_field(model, field)
+                super(ZeroDownTimeMixin, self).add_field(model, field)
+                actions = []
         return actions
 
     def get_pk_column_name(self, model):
@@ -198,7 +199,6 @@ class ZeroDownTimeMixin(object):
     def get_objects_in_batch_count(self, model_count):
         """
         Calculate batch size
-
         :param model_count: int
         :return: int
         """
