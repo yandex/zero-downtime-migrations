@@ -1,3 +1,9 @@
+0.4
+---
+  * add options to run from default SchemaEditor
+
+[Vladimir Koljasinskij](smosker@gmail.com) 2018-07-04 10:41:27+03:00
+
 0.3
 ---
   * fix issue with default values
