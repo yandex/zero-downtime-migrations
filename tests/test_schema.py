@@ -67,7 +67,10 @@ def test_retry_with_choice_working(add_column):
                   ('abort migration', u'drop column and run migration from beginning',
                    'manually choose action to start from',
                    'show how many rows still need to be updated',
-                   'mark operation as successful and proceed to next operation'),),
+                   'mark operation as successful and proceed to next operation',
+                   'drop column and run migration from standard SchemaEditor',
+                   ),
+                  ),
              call('Now choose from which action process should continue',
                   ['add field with default',
                    'update existing rows',
@@ -92,7 +95,9 @@ def test_retry_with_skip_working(add_column):
                                         ('abort migration', u'drop column and run migration from beginning',
                                          'manually choose action to start from',
                                          'show how many rows still need to be updated',
-                                         'mark operation as successful and proceed to next operation'),
+                                         'mark operation as successful and proceed to next operation',
+                                         'drop column and run migration from standard SchemaEditor',
+                                         ),
                                         )
     assert len(queries) == 1
     assert queries[0] == ("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns "
