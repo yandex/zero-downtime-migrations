@@ -6,8 +6,6 @@ import pytest
 
 from test_app.models import TestModel
 
-pytestmark = pytest.mark.django_db
-
 
 @pytest.fixture
 def test_object():

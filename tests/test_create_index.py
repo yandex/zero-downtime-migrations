@@ -30,6 +30,7 @@ def test_create_index_success():
         assert re.search(pattern, ctx.captured_queries[0]['sql']) is not None
 
 
+@pytest.mark.django_db(transaction=True)
 def test_sqlmigrate_create_index_working():
     old_field = models.IntegerField()
     old_field.set_attributes_from_name("name")
