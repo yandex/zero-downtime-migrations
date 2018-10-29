@@ -68,7 +68,7 @@ If you are using your own custom backend you can:
 
     from zero_downtime_migrations.backend.schema import DatabaseSchemaEditor
 
-    class YourCustomDatabaseWrapper(BaseWrapper):
+    class DatabaseWrapper(BaseWrapper):
         SchemaEditorClass = DatabaseSchemaEditor
 
 
