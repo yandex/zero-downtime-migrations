@@ -258,11 +258,11 @@ class ZeroDownTimeMixin(object):
         return self.parse_cursor_result(cursor=cursor)
 
     def drop_default(self, model, field):
-        set_default_sql, params = self._alter_column_default_sql(field, drop=True)
+        set_default_sql, params = self._alter_column_absolute_default_sql(field, drop=True)
         self.execute_alter_column(model, set_default_sql, params)
 
     def add_default(self, model, field, default_value):
-        set_default_sql, params = self._alter_column_default_sql(field, default_value)
+        set_default_sql, params = self._alter_column_absolute_default_sql(field, default_value)
         self.execute_alter_column(model, set_default_sql, params)
 
     def set_not_null(self, model, field):
@@ -284,7 +284,7 @@ class ZeroDownTimeMixin(object):
                 'type': new_db_params['type'],
         }
 
-    def _alter_column_default_sql(self, field, default_value=None, drop=False):
+    def _alter_column_absolute_default_sql(self, field, default_value=None, drop=False):
         """
         Copy this method from django2.0
         https://github.com/django/django/blob/master/django/db/backends/base/schema.py#L787
