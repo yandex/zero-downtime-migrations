@@ -106,7 +106,7 @@ This will add default for all new rows in table but all existing ones will be wi
 this operation will be quick because postgres doesn't have to fill all existing rows with default.
 
 Next we will count objects in table and if result if more than zero - calculate the
-size of batch in which we will update existing rows. After that while where are still objects with null in this
+size of batch in which we will update existing rows. After that while there are still objects with null in this
 column - we will update them.
 
 While result of following statement is more than zero:
