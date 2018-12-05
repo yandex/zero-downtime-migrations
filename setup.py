@@ -38,8 +38,6 @@ setup(
                  'Topic :: Software Development :: Libraries :: Python Modules',
                  'Programming Language :: Python',
                  'Programming Language :: Python :: 2.7',
-                 'Programming Language :: Python :: 3.0',
-                 'Programming Language :: Python :: 3.1',
                  'Programming Language :: Python :: 3.4',
                  'Programming Language :: Python :: 3.5',
                  'Programming Language :: Python :: 3.6',
@@ -47,7 +45,7 @@ setup(
                  ],
     keywords='django postgresql migrations',
     packages=find_packages(),
-    python_requires='>=2.7,!=3.2.*,!=3.3.*,<4.0',
+    python_requires='>=2.7,!=3.1.*,!=3.0.*,!=3.2.*,!=3.3.*,<4.0',
     install_requires=[
         'Django>=1.3',
         'psycopg2>=2.7.3.2',
