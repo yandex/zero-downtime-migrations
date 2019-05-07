@@ -164,7 +164,7 @@ class ZeroDownTimeMixin(object):
             elif result == 3:
                 question = 'Now choose from which action process should continue'
                 result = questioner._choice_input(question, self.ADD_FIELD_WITH_DEFAULT_ACTIONS)
-                actions = actions[result-1:]
+                actions = self.ADD_FIELD_WITH_DEFAULT_ACTIONS[result-1:]
             elif result == 4:
                 question = 'Rows in table where column is null: "{}"'
                 need_to_update = self.need_to_update(model=model, field=field)
