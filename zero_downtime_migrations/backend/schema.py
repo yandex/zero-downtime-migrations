@@ -139,8 +139,7 @@ class ZeroDownTimeMixin(object):
         return self.get_query_result(sql)
 
     def get_actions_to_perform(self, model, field):
-
-
+        actions = self.ADD_FIELD_WITH_DEFAULT_ACTIONS
         # Checking maybe this column already exists
         # if so asking user what to do next
         column_info = self.get_column_info(model, field)
@@ -163,8 +162,8 @@ class ZeroDownTimeMixin(object):
                 self.remove_field(model, field)
             elif result == 3:
                 question = 'Now choose from which action process should continue'
-                result = questioner._choice_input(question, self.ADD_FIELD_WITH_DEFAULT_ACTIONS)
-                actions = self.ADD_FIELD_WITH_DEFAULT_ACTIONS[result-1:]
+                result = questioner._choice_input(question, actions)
+                actions = actions[result-1:]
             elif result == 4:
                 question = 'Rows in table where column is null: "{}"'
                 need_to_update = self.need_to_update(model=model, field=field)
