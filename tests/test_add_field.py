@@ -41,7 +41,8 @@ def test_sqlmigrate_add_field_working():
             'ALTER TABLE "test_app_testmodel" ADD COLUMN "bool_field" boolean NULL;',
             'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" SET DEFAULT true;',
             "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
-            '\n                       WITH cte AS (\n                       SELECT id as pk\n                       FROM test_app_testmodel\n                       WHERE  bool_field is null\n                       LIMIT  1000\n                       )\n                       UPDATE test_app_testmodel table_\n                       SET bool_field = true\n                       FROM   cte\n                       WHERE  table_.id = cte.pk\n                       ;',
+            ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  bool_field is null LIMIT  1000 )"
+             " UPDATE test_app_testmodel table_ SET bool_field = true FROM   cte WHERE  table_.id = cte.pk;"),
             'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" SET NOT NULL;',
             'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" DROP DEFAULT;'
         ]
@@ -91,30 +92,10 @@ def test_add_bool_field_with_existed_object_success(test_object):
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" SET DEFAULT true',
                         "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
                         'SELECT COUNT(*) FROM test_app_testmodel;',
-                        '''
-                       WITH cte AS (
-                       SELECT id as pk
-                       FROM test_app_testmodel
-                       WHERE  bool_field is null
-                       LIMIT  1000
-                       )
-                       UPDATE test_app_testmodel table_
-                       SET bool_field = true
-                       FROM   cte
-                       WHERE  table_.id = cte.pk
-                       ''',
-                        '''
-                       WITH cte AS (
-                       SELECT id as pk
-                       FROM test_app_testmodel
-                       WHERE  bool_field is null
-                       LIMIT  1000
-                       )
-                       UPDATE test_app_testmodel table_
-                       SET bool_field = true
-                       FROM   cte
-                       WHERE  table_.id = cte.pk
-                       ''',
+                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  bool_field is null LIMIT  1000 )"
+                         " UPDATE test_app_testmodel table_ SET bool_field = true FROM   cte WHERE  table_.id = cte.pk"),
+                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  bool_field is null LIMIT  1000 )"
+                         " UPDATE test_app_testmodel table_ SET bool_field = true FROM   cte WHERE  table_.id = cte.pk"),
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" SET NOT NULL',
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" DROP DEFAULT',
                         ]
@@ -145,30 +126,10 @@ def test_add_bool_field_with_existed_many_objects_success(test_object, test_obje
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" SET DEFAULT true',
                         "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
                         'SELECT COUNT(*) FROM test_app_testmodel;',
-                        '''
-                       WITH cte AS (
-                       SELECT id as pk
-                       FROM test_app_testmodel
-                       WHERE  bool_field is null
-                       LIMIT  1000
-                       )
-                       UPDATE test_app_testmodel table_
-                       SET bool_field = true
-                       FROM   cte
-                       WHERE  table_.id = cte.pk
-                       ''',
-                        '''
-                       WITH cte AS (
-                       SELECT id as pk
-                       FROM test_app_testmodel
-                       WHERE  bool_field is null
-                       LIMIT  1000
-                       )
-                       UPDATE test_app_testmodel table_
-                       SET bool_field = true
-                       FROM   cte
-                       WHERE  table_.id = cte.pk
-                       ''',
+                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  bool_field is null LIMIT  1000 )"
+                         " UPDATE test_app_testmodel table_ SET bool_field = true FROM   cte WHERE  table_.id = cte.pk"),
+                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  bool_field is null LIMIT  1000 )"
+                         " UPDATE test_app_testmodel table_ SET bool_field = true FROM   cte WHERE  table_.id = cte.pk"),
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" SET NOT NULL',
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "bool_field" DROP DEFAULT',
                         ]
@@ -230,30 +191,10 @@ def test_add_datetime_field_with_existed_object_success(test_object):
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" SET DEFAULT \'2017-12-15T00:21:34+00:00\'::timestamptz',
                         "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
                         'SELECT COUNT(*) FROM test_app_testmodel;',
-                        '''
-                       WITH cte AS (
-                       SELECT id as pk
-                       FROM test_app_testmodel
-                       WHERE  datetime_field is null
-                       LIMIT  1000
-                       )
-                       UPDATE test_app_testmodel table_
-                       SET datetime_field = \'2017-12-15T00:21:34+00:00\'::timestamptz
-                       FROM   cte
-                       WHERE  table_.id = cte.pk
-                       ''',
-                        '''
-                       WITH cte AS (
-                       SELECT id as pk
-                       FROM test_app_testmodel
-                       WHERE  datetime_field is null
-                       LIMIT  1000
-                       )
-                       UPDATE test_app_testmodel table_
-                       SET datetime_field = \'2017-12-15T00:21:34+00:00\'::timestamptz
-                       FROM   cte
-                       WHERE  table_.id = cte.pk
-                       ''',
+                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  datetime_field is null LIMIT  1000 ) "
+                         "UPDATE test_app_testmodel table_ SET datetime_field = \'2017-12-15T00:21:34+00:00\'::timestamptz FROM   cte WHERE  table_.id = cte.pk"),
+                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  datetime_field is null LIMIT  1000"
+                         " ) UPDATE test_app_testmodel table_ SET datetime_field = \'2017-12-15T00:21:34+00:00\'::timestamptz FROM   cte WHERE  table_.id = cte.pk"),
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" SET NOT NULL',
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" DROP DEFAULT',
                         ]
@@ -285,30 +226,10 @@ def test_add_datetime_field_with_existed_many_objects_success(test_object, test_
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" SET DEFAULT \'2017-12-15T00:21:34+00:00\'::timestamptz',
                         "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
                         'SELECT COUNT(*) FROM test_app_testmodel;',
-                        '''
-                       WITH cte AS (
-                       SELECT id as pk
-                       FROM test_app_testmodel
-                       WHERE  datetime_field is null
-                       LIMIT  1000
-                       )
-                       UPDATE test_app_testmodel table_
-                       SET datetime_field = \'2017-12-15T00:21:34+00:00\'::timestamptz
-                       FROM   cte
-                       WHERE  table_.id = cte.pk
-                       ''',
-                        '''
-                       WITH cte AS (
-                       SELECT id as pk
-                       FROM test_app_testmodel
-                       WHERE  datetime_field is null
-                       LIMIT  1000
-                       )
-                       UPDATE test_app_testmodel table_
-                       SET datetime_field = \'2017-12-15T00:21:34+00:00\'::timestamptz
-                       FROM   cte
-                       WHERE  table_.id = cte.pk
-                       ''',
+                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  datetime_field is null LIMIT  1000 ) "
+                         "UPDATE test_app_testmodel table_ SET datetime_field = \'2017-12-15T00:21:34+00:00\'::timestamptz FROM   cte WHERE  table_.id = cte.pk"),
+                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  datetime_field is null LIMIT  1000 ) UPDATE test_app_testmodel table_ "
+                         "SET datetime_field = \'2017-12-15T00:21:34+00:00\'::timestamptz FROM   cte WHERE  table_.id = cte.pk"),
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" SET NOT NULL',
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" DROP DEFAULT',
                         ]
