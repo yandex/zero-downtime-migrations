@@ -18,27 +18,39 @@ from django.db.models.fields.related import RelatedField
 from django.db import transaction
 from django.db.migrations.questioner import InteractiveMigrationQuestioner
 
+from zero_downtime_migrations.backend.sql_template import (
+    SQL_ESTIMATE_COUNT_IN_TABLE,
+    SQL_CHECK_COLUMN_STATUS,
+    SQL_COUNT_IN_TABLE,
+    SQL_COUNT_IN_TABLE_WITH_NULL,
+    SQL_UPDATE_BATCH,
+)
+
 DJANGO_VERISON = StrictVersion(django.get_version())
+TABLE_SIZE_FOR_MAX_BATCH = 500000
+MAX_BATCH_SIZE = 10000
+MIN_BATCH_SIZE = 1000
 
 
 class ZeroDownTimeMixin(object):
-    sql_estimate_count_in_table = "SELECT reltuples::BIGINT FROM pg_class WHERE relname = '%(table)s';"
-    sql_count_in_table = "SELECT COUNT(*) FROM %(table)s;"
-    sql_count_in_table_with_null = "SELECT COUNT(*) FROM %(table)s WHERE %(column)s is NULL;"
-    sql_update_batch = '''
-                       WITH cte AS (
-                       SELECT %(pk_column_name)s as pk
-                       FROM %(table)s
-                       WHERE  %(column)s is null
-                       LIMIT  %(batch_size)s
-                       )
-                       UPDATE %(table)s table_
-                       SET %(column)s = %(value)s
-                       FROM   cte
-                       WHERE  table_.%(pk_column_name)s = cte.pk
-                       '''
-    sql_check_column_status = ("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns "
-                               "where table_name = '%(table)s' and column_name = '%(column)s';")
+    RETRY_QUESTION_TEMPLATE = ('It look like column "{}" in table "{}" already exist with following '
+                               'parameters: TYPE: "{}", DEFAULT: "{}", NULLABLE: "{}".'
+                               )
+    RETRY_CHOICES = (
+        'abort migration',
+        'drop column and run migration from beginning',
+        'manually choose action to start from',
+        'show how many rows still need to be updated',
+        'mark operation as successful and proceed to next operation',
+        'drop column and run migration from standard SchemaEditor',
+    )
+
+    ADD_FIELD_WITH_DEFAULT_ACTIONS = [
+        'add field with default',
+        'update existing rows',
+        'set not null for field',
+        'drop default',
+    ]
 
     def add_field(self, model, field):
         if isinstance(field, RelatedField) or field.default is NOT_PROVIDED:
@@ -47,7 +59,7 @@ class ZeroDownTimeMixin(object):
             # Checking which actions we should perform - maybe this operation was run
             # before and it had crashed for some reason
             actions = self.get_actions_to_perform(model, field)
-            if len(actions) == 0:
+            if not actions:
                 return
 
             # Saving initial values
@@ -120,20 +132,14 @@ class ZeroDownTimeMixin(object):
             self.set_not_null(model, field)
 
     def get_column_info(self, model, field):
-        sql = self.sql_check_column_status % {
+        sql = SQL_CHECK_COLUMN_STATUS % {
             "table": model._meta.db_table,
             "column": field.name,
         }
         return self.get_query_result(sql)
 
     def get_actions_to_perform(self, model, field):
-        actions = [
-            'add field with default',
-            'update existing rows',
-            'set not null for field',
-            'drop default',
-        ]
-
+        actions = self.ADD_FIELD_WITH_DEFAULT_ACTIONS
         # Checking maybe this column already exists
         # if so asking user what to do next
         column_info = self.get_column_info(model, field)
@@ -142,22 +148,14 @@ class ZeroDownTimeMixin(object):
             existed_nullable, existed_type, existed_default = column_info
 
             questioner = InteractiveMigrationQuestioner()
-            question_template = ('It look like column "{}" in table "{}" already exist with following '
-                                 'parameters: TYPE: "{}", DEFAULT: "{}", NULLABLE: "{}".'
-                                 )
-            question = question_template.format(field.name, model._meta.db_table,
-                                                existed_type, existed_default,
-                                                existed_nullable,
-                                                )
-            choices = ('abort migration',
-                       'drop column and run migration from beginning',
-                       'manually choose action to start from',
-                       'show how many rows still need to be updated',
-                       'mark operation as successful and proceed to next operation',
-                       'drop column and run migration from standard SchemaEditor',
-                       )
 
-            result = questioner._choice_input(question, choices)
+            question = self.RETRY_QUESTION_TEMPLATE.format(
+                field.name, model._meta.db_table,
+                existed_type, existed_default,
+                existed_nullable,
+            )
+
+            result = questioner._choice_input(question, self.RETRY_CHOICES)
             if result == 1:
                 sys.exit(1)
             elif result == 2:
@@ -186,7 +184,7 @@ class ZeroDownTimeMixin(object):
 
     def update_batch(self, model, field, objects_in_batch_count, value):
         pk_column_name = self.get_pk_column_name(model)
-        sql = self.sql_update_batch % {
+        sql = SQL_UPDATE_BATCH % {
             "table": model._meta.db_table,
             "column": field.name,
             "batch_size": objects_in_batch_count,
@@ -202,11 +200,11 @@ class ZeroDownTimeMixin(object):
         :param model_count: int
         :return: int
         """
-        if model_count > 500000:
-            value = 10000
+        if model_count > TABLE_SIZE_FOR_MAX_BATCH:
+            value = MAX_BATCH_SIZE
         else:
             value = int((model_count / 100) * 5)
-        return max(1000, value)
+        return max(MIN_BATCH_SIZE, value)
 
     def get_query_result(self, sql, params=(), row_count=False):
         """
@@ -238,19 +236,19 @@ class ZeroDownTimeMixin(object):
         return self.parse_cursor_result(cursor=cursor)
 
     def count_objects_in_table(self, model):
-        count = self.execute_table_query(sql=self.sql_estimate_count_in_table,
+        count = self.execute_table_query(sql=SQL_ESTIMATE_COUNT_IN_TABLE,
                                          model=model,
                                          )
         if count == 0:
             # Check, maybe statistic is outdated?
             # Because previous count return 0 it will be fast query
-            count = self.execute_table_query(sql=self.sql_count_in_table,
+            count = self.execute_table_query(sql=SQL_COUNT_IN_TABLE,
                                              model=model,
                                              )
         return count
 
     def need_to_update(self, model, field):
-        sql = self.sql_count_in_table_with_null % {
+        sql = SQL_COUNT_IN_TABLE_WITH_NULL % {
             "table": model._meta.db_table,
             "column": field.name,
         }
