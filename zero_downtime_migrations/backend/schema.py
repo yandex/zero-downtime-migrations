@@ -65,7 +65,7 @@ class ZeroDownTimeMixin(object):
                 self.execute(
                     self._create_index_sql(model, [new_field], name=index_name, sql=SQL_CREATE_UNIQUE_INDEX)
                 )
-                self.execute(self._create_unique_constraint_from_index_sql(model, index_name))
+                self.execute(self._create_unique_constraint_from_index_sql(table, index_name))
                 self.already_added_unique = True
 
         return super(ZeroDownTimeMixin, self).alter_field(model, old_field, new_field, strict=strict)
@@ -327,9 +327,9 @@ class ZeroDownTimeMixin(object):
             return False
         return super(ZeroDownTimeMixin, self)._unique_should_be_added(old_field, new_field)
 
-    def _create_unique_constraint_from_index_sql(self, model, index_name):
+    def _create_unique_constraint_from_index_sql(self, table, index_name):
         return SQL_ADD_UNIQUE_CONSTRAINT_FROM_INDEX % {
-            "table": model._meta.db_table,
+            "table": table,
             "name": index_name,
             "index_name": index_name,
         }
