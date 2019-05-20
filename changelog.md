@@ -1,3 +1,11 @@
+0.5
+---
+  * refactoring
+  * Add ability to add unique property without long lock
+  * README: fix typos
+
+[Vladimir Koljasinskij](smosker@gmail.com) 2019-05-20 11:25:27+03:00
+
 0.4
 ---
   * add options to run from default SchemaEditor
