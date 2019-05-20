@@ -23,6 +23,7 @@ Current possibilities
 --------------------------
 * add field with default value (nullable or not)
 * create index concurrently (you should always `check <https://www.postgresql.org/docs/9.1/static/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY>`_ the index status after creating)
+* add unique property to existing field through creating unique index concurrently and creating constraint using this index
 
 Why use it
 ----------

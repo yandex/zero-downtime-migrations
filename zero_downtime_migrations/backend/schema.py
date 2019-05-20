@@ -2,6 +2,7 @@
 
 from __future__ import unicode_literals
 
+import re
 import sys
 import inspect
 
@@ -24,6 +25,8 @@ from zero_downtime_migrations.backend.sql_template import (
     SQL_COUNT_IN_TABLE,
     SQL_COUNT_IN_TABLE_WITH_NULL,
     SQL_UPDATE_BATCH,
+    SQL_CREATE_UNIQUE_INDEX,
+    SQL_ADD_UNIQUE_CONSTRAINT_FROM_INDEX,
 )
 
 DJANGO_VERISON = StrictVersion(django.get_version())
@@ -51,6 +54,21 @@ class ZeroDownTimeMixin(object):
         'set not null for field',
         'drop default',
     ]
+
+    def alter_field(self, model, old_field, new_field, strict=False):
+
+        if DJANGO_VERISON > StrictVersion('2.1'):
+            from django.db.backends.ddl_references import IndexName
+            if self._unique_should_be_added(old_field, new_field):
+                table = model._meta.db_table
+                index_name = str(IndexName(table, [new_field.column], '_uniq', self._create_index_name))
+                self.execute(
+                    self._create_index_sql(model, [new_field], name=index_name, sql=SQL_CREATE_UNIQUE_INDEX)
+                )
+                self.execute(self._create_unique_constraint_from_index_sql(table, index_name))
+                self.already_added_unique = True
+
+        return super(ZeroDownTimeMixin, self).alter_field(model, old_field, new_field, strict=strict)
 
     def add_field(self, model, field):
         if isinstance(field, RelatedField) or field.default is NOT_PROVIDED:
@@ -304,14 +322,27 @@ class ZeroDownTimeMixin(object):
             params,
         )
 
+    def _unique_should_be_added(self, old_field, new_field):
+        if getattr(self, 'already_added_unique', False):
+            return False
+        return super(ZeroDownTimeMixin, self)._unique_should_be_added(old_field, new_field)
+
+    def _create_unique_constraint_from_index_sql(self, table, index_name):
+        return SQL_ADD_UNIQUE_CONSTRAINT_FROM_INDEX % {
+            "table": table,
+            "name": index_name,
+            "index_name": index_name,
+        }
+
     def execute(self, sql, params=()):
         exit_atomic = False
         # Account for non-string statement objects.
         sql = str(sql)
 
-        if 'CREATE INDEX' in sql:
+        if re.search('CREATE.+INDEX', sql):
             exit_atomic = True
-            sql = sql.replace('CREATE INDEX', 'CREATE INDEX CONCURRENTLY')
+            if 'CONCURRENTLY' not in sql:
+                sql = sql.replace('CREATE INDEX', 'CREATE INDEX CONCURRENTLY')
         atomic = self.connection.in_atomic_block
         if exit_atomic and atomic:
             self.atomic.__exit__(None, None, None)

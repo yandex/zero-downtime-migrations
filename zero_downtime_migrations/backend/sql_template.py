@@ -23,3 +23,7 @@ SQL_UPDATE_BATCH = ("WITH cte AS ( "
 
 SQL_CHECK_COLUMN_STATUS = ("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns "
                            "where table_name = '%(table)s' and column_name = '%(column)s';")
+
+
+SQL_CREATE_UNIQUE_INDEX = "CREATE UNIQUE INDEX CONCURRENTLY %(name)s ON %(table)s (%(columns)s)%(extra)s"
+SQL_ADD_UNIQUE_CONSTRAINT_FROM_INDEX = "ALTER TABLE %(table)s ADD CONSTRAINT %(name)s UNIQUE USING INDEX %(index_name)s"
