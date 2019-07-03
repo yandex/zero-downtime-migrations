@@ -41,7 +41,7 @@ def test_add_unique_correct_queries():
         assert len(ctx.captured_queries) == expected_queries
         assert re.search(index_pattern, ctx.captured_queries[0]['sql']) is not None
         if check_index_pattern:
-            assert re.search(index_pattern, ctx.captured_queries[1]['sql']) is not None
+            assert re.search(check_index_pattern, ctx.captured_queries[1]['sql']) is not None
         if constraint_pattern:
             assert re.search(constraint_pattern, ctx.captured_queries[2]['sql']) is not None
 
