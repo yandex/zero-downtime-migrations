@@ -1,3 +1,9 @@
+0.6
+---
+  * fix clashing method name
+
+[Vladimir Koljasinskij](smosker@gmail.com) 2019-06-03 14:37:27+03:00
+
 0.5
 ---
   * refactoring
