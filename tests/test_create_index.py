@@ -63,7 +63,7 @@ def test_create_index_fail():
     field = models.IntegerField(unique=True)
     field.set_attributes_from_name("name")
 
-    if DJANGO_VERISON > StrictVersion('2.1'):
+    if DJANGO_VERISON >= StrictVersion('2.1'):
         create_pattern = r'CREATE UNIQUE INDEX CONCURRENTLY "test_app_testmodel_name_\w+(_uniq)?" ON "test_app_testmodel" \("name"\)'
         search_pattern = r"SELECT 1 FROM pg_class, pg_index WHERE pg_index.indisvalid = false AND pg_index.indexrelid = pg_class.oid and pg_class.relname = 'test_app_testmodel_name_\w+(_uniq)?'"
         drop_pattern = r"DROP INDEX CONCURRENTLY IF EXISTS test_app_testmodel_name_\w+(_uniq)?"

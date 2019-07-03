@@ -358,7 +358,7 @@ class ZeroDownTimeMixin(object):
                 return index_name
 
     def _create_unique_failed(self, exc):
-        return (DJANGO_VERISON > StrictVersion('2.1')
+        return (DJANGO_VERISON >= StrictVersion('2.1')
                 and 'could not create unique index' in repr(exc)
                 )
 
