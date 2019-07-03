@@ -27,7 +27,10 @@ from zero_downtime_migrations.backend.sql_template import (
     SQL_UPDATE_BATCH,
     SQL_CREATE_UNIQUE_INDEX,
     SQL_ADD_UNIQUE_CONSTRAINT_FROM_INDEX,
+    SQL_CHECK_INDEX_STATUS,
 )
+
+from zero_downtime_migrations.backend.exceptions import InvalidIndexError
 
 DJANGO_VERISON = StrictVersion(django.get_version())
 TABLE_SIZE_FOR_MAX_BATCH = 500000
@@ -57,7 +60,7 @@ class ZeroDownTimeMixin(object):
 
     def alter_field(self, model, old_field, new_field, strict=False):
 
-        if DJANGO_VERISON > StrictVersion('2.1'):
+        if DJANGO_VERISON >= StrictVersion('2.1'):
             from django.db.backends.ddl_references import IndexName
             if self._unique_should_be_added(old_field, new_field):
                 table = model._meta.db_table
@@ -240,9 +243,10 @@ class ZeroDownTimeMixin(object):
             return cursor.fetchone()
 
     def parse_cursor_result(self, cursor, place=0, collect_sql_value=1,):
+        result = None
         if self.collect_sql:
             result = collect_sql_value  # For sqlmigrate purpose
-        else:
+        elif cursor:
             result = cursor[place]
         return result
 
@@ -254,15 +258,17 @@ class ZeroDownTimeMixin(object):
         return self.parse_cursor_result(cursor=cursor)
 
     def count_objects_in_table(self, model):
-        count = self.execute_table_query(sql=SQL_ESTIMATE_COUNT_IN_TABLE,
-                                         model=model,
-                                         )
+        count = self.execute_table_query(
+            sql=SQL_ESTIMATE_COUNT_IN_TABLE,
+            model=model,
+        )
         if count == 0:
             # Check, maybe statistic is outdated?
             # Because previous count return 0 it will be fast query
-            count = self.execute_table_query(sql=SQL_COUNT_IN_TABLE,
-                                             model=model,
-                                             )
+            count = self.execute_table_query(
+                sql=SQL_COUNT_IN_TABLE,
+                model=model,
+            )
         return count
 
     def need_to_update(self, model, field):
@@ -334,21 +340,57 @@ class ZeroDownTimeMixin(object):
             "index_name": index_name,
         }
 
+    def _check_index_sql(self, index_name):
+        return SQL_CHECK_INDEX_STATUS % {
+            "index_name": index_name,
+        }
+
+    def _check_valid_index(self, sql):
+        """
+        Return index_name if it's invalid
+        """
+        index_match = re.match(r'.* "(?P<index_name>.+)" ON .+', sql)
+        if index_match:
+            index_name = index_match.group('index_name')
+            check_index_sql = self._check_index_sql(index_name)
+            cursor = self.get_query_result(check_index_sql)
+            if self.parse_cursor_result(cursor=cursor):
+                return index_name
+
+    def _create_unique_failed(self, exc):
+        return (DJANGO_VERISON > StrictVersion('2.1')
+                and 'could not create unique index' in repr(exc)
+                )
+
     def execute(self, sql, params=()):
         exit_atomic = False
         # Account for non-string statement objects.
         sql = str(sql)
 
-        if re.search('CREATE.+INDEX', sql):
+        if re.search('(CREATE|DROP).+INDEX', sql):
             exit_atomic = True
             if 'CONCURRENTLY' not in sql:
-                sql = sql.replace('CREATE INDEX', 'CREATE INDEX CONCURRENTLY')
+                sql = sql.replace('INDEX', 'INDEX CONCURRENTLY')
         atomic = self.connection.in_atomic_block
         if exit_atomic and atomic:
             self.atomic.__exit__(None, None, None)
+        try:
+            super(ZeroDownTimeMixin, self).execute(sql, params)
+        except django.db.utils.IntegrityError as exc:
+            # create unique index should be treated differently
+            # because it raises error, instead of quiet exit
+            if not self._create_unique_failed(exc):
+                raise
 
-        super(ZeroDownTimeMixin, self).execute(sql, params)
-
+        if exit_atomic and not self.collect_sql:
+            invalid_index_name = self._check_valid_index(sql)
+            if invalid_index_name:
+                # index was build, but invalid, we need to delete it
+                self.execute(self.sql_delete_index % {'name': invalid_index_name})
+                raise InvalidIndexError(
+                    'Unsuccessful attempt to create an index, fix data if needed and restart.'
+                    'Sql was: {}'.format(sql)
+                )
         if exit_atomic and atomic:
             self.atomic = transaction.atomic(self.connection.alias)
             self.atomic.__enter__()

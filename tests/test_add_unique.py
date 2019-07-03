@@ -26,7 +26,7 @@ def test_add_unique_correct_queries():
 
     field = models.IntegerField(unique=True)
     field.set_attributes_from_name("name")
-    if DJANGO_VERISON > StrictVersion('2.1'):
+    if DJANGO_VERISON >= StrictVersion('2.1'):
         index_pattern = r'CREATE UNIQUE INDEX CONCURRENTLY "test_app_testmodel_name_\w+(_uniq)?" ON "test_app_testmodel" \("name"\)'
         constraint_pattern = r'ALTER TABLE test_app_testmodel ADD CONSTRAINT test_app_testmodel_name_\w+(_uniq)? UNIQUE USING INDEX test_app_testmodel_name_\w+(_uniq)?'
         expected_queries = 2
