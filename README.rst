@@ -22,7 +22,7 @@ while applying Django migrations using PostgreSql as database.
 Current possibilities
 --------------------------
 * add field with default value (nullable or not)
-* create index concurrently (you should always `check <https://www.postgresql.org/docs/9.1/static/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY>`_ the index status after creating)
+* create index concurrently (and check index status after creation in case it was created with INVALID status)
 * add unique property to existing field through creating unique index concurrently and creating constraint using this index
 
 Why use it
