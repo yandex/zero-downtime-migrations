@@ -242,20 +242,20 @@ class ZeroDownTimeMixin(object):
                 return cursor.rowcount
             return cursor.fetchone()
 
-    def parse_cursor_result(self, cursor, place=0, collect_sql_value=1,):
+    def parse_cursor_result(self, cursor_result, place=0, collect_sql_value=1,):
         result = None
         if self.collect_sql:
             result = collect_sql_value  # For sqlmigrate purpose
-        elif cursor:
-            result = cursor[place]
+        elif cursor_result:
+            result = cursor_result[place]
         return result
 
     def execute_table_query(self, sql, model):
         sql = sql % {
             "table": model._meta.db_table
         }
-        cursor = self.get_query_result(sql)
-        return self.parse_cursor_result(cursor=cursor)
+        cursor_result = self.get_query_result(sql)
+        return self.parse_cursor_result(cursor_result=cursor_result)
 
     def count_objects_in_table(self, model):
         count = self.execute_table_query(
@@ -276,8 +276,8 @@ class ZeroDownTimeMixin(object):
             "table": model._meta.db_table,
             "column": field.name,
         }
-        cursor = self.get_query_result(sql)
-        return self.parse_cursor_result(cursor=cursor)
+        cursor_result = self.get_query_result(sql)
+        return self.parse_cursor_result(cursor_result=cursor_result)
 
     def drop_default(self, model, field):
         set_default_sql, params = self._alter_column_default_sql(field, drop=True)
@@ -353,8 +353,8 @@ class ZeroDownTimeMixin(object):
         if index_match:
             index_name = index_match.group('index_name')
             check_index_sql = self._check_index_sql(index_name)
-            cursor = self.get_query_result(check_index_sql)
-            if self.parse_cursor_result(cursor=cursor):
+            cursor_result = self.get_query_result(check_index_sql)
+            if self.parse_cursor_result(cursor_result=cursor_result):
                 return index_name
 
     def _create_unique_failed(self, exc):

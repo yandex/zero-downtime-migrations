@@ -6,9 +6,9 @@
     :alt: Supported Python versions
     :target: https://pypi.python.org/pypi/zero-downtime-migrations
 
-.. image:: https://travis-ci.org/Smosker/zero-downtime-migrations.svg?branch=master
+.. image:: https://travis-ci.org/yandex/zero-downtime-migrations.svg?branch=master
     :alt: Build Status
-    :target: https://travis-ci.org/Smosker/zero-downtime-migrations
+    :target: https://travis-ci.org/yandex/zero-downtime-migrations
 
 
 Zero-Downtime-Migrations
@@ -81,6 +81,15 @@ If you are using your own custom backend you can:
 
     class YourCustomSchemaEditor(ZeroDownTimeMixin, ...):
         ...
+
+Note about indexes
+-------
+Library will always force CONCURRENTLY index creation and after that check index status - if index was
+created with INVALID status it will be deleted and error will be raised.
+In this case you should fix problem if needed and restart migration.
+For example if creating unique index was failed you should make sure that there are only unique values
+in column on which index is creating.
+Usually index creating with invalid status due to deadlock so you need just restart migration.
 
 Example
 -------
