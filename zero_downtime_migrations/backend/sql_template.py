@@ -27,3 +27,5 @@ SQL_CHECK_COLUMN_STATUS = ("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from i
 
 SQL_CREATE_UNIQUE_INDEX = "CREATE UNIQUE INDEX CONCURRENTLY %(name)s ON %(table)s (%(columns)s)%(extra)s"
 SQL_ADD_UNIQUE_CONSTRAINT_FROM_INDEX = "ALTER TABLE %(table)s ADD CONSTRAINT %(name)s UNIQUE USING INDEX %(index_name)s"
+SQL_CHECK_INDEX_STATUS = ("SELECT 1 FROM pg_class, pg_index WHERE pg_index.indisvalid = false "
+                          "AND pg_index.indexrelid = pg_class.oid and pg_class.relname = '%(index_name)s'")

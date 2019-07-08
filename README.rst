@@ -6,9 +6,9 @@
     :alt: Supported Python versions
     :target: https://pypi.python.org/pypi/zero-downtime-migrations
 
-.. image:: https://travis-ci.org/Smosker/zero-downtime-migrations.svg?branch=master
+.. image:: https://travis-ci.org/yandex/zero-downtime-migrations.svg?branch=master
     :alt: Build Status
-    :target: https://travis-ci.org/Smosker/zero-downtime-migrations
+    :target: https://travis-ci.org/yandex/zero-downtime-migrations
 
 
 Zero-Downtime-Migrations
@@ -22,7 +22,7 @@ while applying Django migrations using PostgreSql as database.
 Current possibilities
 --------------------------
 * add field with default value (nullable or not)
-* create index concurrently (you should always `check <https://www.postgresql.org/docs/9.1/static/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY>`_ the index status after creating)
+* create index concurrently (and check index status after creation in case it was created with INVALID status)
 * add unique property to existing field through creating unique index concurrently and creating constraint using this index
 
 Why use it
@@ -81,6 +81,15 @@ If you are using your own custom backend you can:
 
     class YourCustomSchemaEditor(ZeroDownTimeMixin, ...):
         ...
+
+Note about indexes
+-------
+Library will always force CONCURRENTLY index creation and after that check index status - if index was
+created with INVALID status it will be deleted and error will be raised.
+In this case you should fix problem if needed and restart migration.
+For example if creating unique index was failed you should make sure that there are only unique values
+in column on which index is creating.
+Usually index creating with invalid status due to deadlock so you need just restart migration.
 
 Example
 -------
