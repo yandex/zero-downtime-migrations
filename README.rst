@@ -20,7 +20,7 @@ Description
 while applying Django migrations using PostgreSql as database.
 
 Current possibilities
---------------------------
+---------------------
 * add field with default value (nullable or not)
 * create index concurrently (and check index status after creation in case it was created with INVALID status)
 * add unique property to existing field through creating unique index concurrently and creating constraint using this index
@@ -83,7 +83,7 @@ If you are using your own custom backend you can:
         ...
 
 Note about indexes
--------
+------------------
 Library will always force CONCURRENTLY index creation and after that check index status - if index was
 created with INVALID status it will be deleted and error will be raised.
 In this case you should fix problem if needed and restart migration.
