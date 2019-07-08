@@ -1,3 +1,9 @@
+0.7
+---
+  * add checking index status after creation
+
+[Vladimir Koljasinskij](smosker@gmail.com) 2019-07-08 11:55:27+03:00
+
 0.6
 ---
   * fix clashing method name
