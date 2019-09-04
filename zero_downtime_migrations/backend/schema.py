@@ -80,10 +80,11 @@ class ZeroDownTimeMixin(object):
         elif field.default is NOT_PROVIDED:
             supported = False
 
-            if (DJANGO_VERISON > StrictVersion('1.10') and
+            if (DJANGO_VERISON >= StrictVersion('1.10') and
                 (getattr(field, 'auto_now', False) or
                  getattr(field, 'auto_now_add', False))
             ):
+                self.date_default = True
                 supported = True
         return supported
 
@@ -102,6 +103,11 @@ class ZeroDownTimeMixin(object):
         nullable = field.null
         # Update the values to the required ones
         field.default = None if DJANGO_VERISON < StrictVersion('1.11') else NOT_PROVIDED
+        if getattr(self, 'date_default', False):
+            if getattr(field, 'auto_now', False):
+                field.auto_now = False
+            if getattr(field, 'auto_now_add', False):
+                field.auto_now_add = False
         if nullable is False:
             field.null = True
 

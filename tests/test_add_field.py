@@ -4,8 +4,10 @@ from __future__ import unicode_literals
 
 import pytest
 import pytz
-from datetime import datetime
+import django
 
+from datetime import datetime
+from distutils.version import StrictVersion
 from django.db import models
 from django.db import connections
 from django.test.utils import CaptureQueriesContext
@@ -17,6 +19,7 @@ from test_app.models import TestModel
 pytestmark = pytest.mark.django_db
 connection = connections['default']
 schema_editor = DatabaseSchemaEditor
+DJANGO_VERISON = StrictVersion(django.get_version())
 
 
 def column_classes(model):
@@ -220,7 +223,8 @@ def test_add_datetime_field_with_auto_now_add_existed_object_success(test_object
 
     columns = column_classes(TestModel)
     assert columns['datetime_field'][0] == "DateTimeField"
-    expected_queries = [("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where "
+    if DJANGO_VERISON >= StrictVersion('1.10'):
+        expected_queries = [("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where "
                          "table_name = 'test_app_testmodel' and column_name = 'datetime_field';"),
                         'ALTER TABLE "test_app_testmodel" ADD COLUMN "datetime_field" timestamp with time zone NULL',
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" SET DEFAULT \'2017-12-15T03:21:34+00:00\'::timestamptz',
@@ -232,7 +236,7 @@ def test_add_datetime_field_with_auto_now_add_existed_object_success(test_object
                          " ) UPDATE test_app_testmodel table_ SET datetime_field = \'2017-12-15T03:21:34+00:00\'::timestamptz FROM   cte WHERE  table_.id = cte.pk"),
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" DROP DEFAULT',
                         ]
-    assert queries == expected_queries
+        assert queries == expected_queries
     sql = 'SELECT * from "test_app_testmodel" where id = %s'
     with connection.cursor() as cursor:
         cursor.execute(sql, (test_object.id, ))
@@ -254,19 +258,20 @@ def test_add_datetime_field_with_auto_now_existed_object_success(test_object):
 
     columns = column_classes(TestModel)
     assert columns['datetime_field'][0] == "DateTimeField"
-    expected_queries = [("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where "
-                         "table_name = 'test_app_testmodel' and column_name = 'datetime_field';"),
-                        'ALTER TABLE "test_app_testmodel" ADD COLUMN "datetime_field" timestamp with time zone NULL',
-                        'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" SET DEFAULT \'2017-12-15T03:21:34+00:00\'::timestamptz',
-                        "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
-                        'SELECT COUNT(*) FROM test_app_testmodel;',
-                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  datetime_field is null LIMIT  1000 ) "
-                         "UPDATE test_app_testmodel table_ SET datetime_field = \'2017-12-15T03:21:34+00:00\'::timestamptz FROM   cte WHERE  table_.id = cte.pk"),
-                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  datetime_field is null LIMIT  1000"
-                         " ) UPDATE test_app_testmodel table_ SET datetime_field = \'2017-12-15T03:21:34+00:00\'::timestamptz FROM   cte WHERE  table_.id = cte.pk"),
-                        'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" DROP DEFAULT',
-                        ]
-    assert queries == expected_queries
+    if DJANGO_VERISON >= StrictVersion('1.10'):
+        expected_queries = [("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where "
+                             "table_name = 'test_app_testmodel' and column_name = 'datetime_field';"),
+                            'ALTER TABLE "test_app_testmodel" ADD COLUMN "datetime_field" timestamp with time zone NULL',
+                            'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" SET DEFAULT \'2017-12-15T03:21:34+00:00\'::timestamptz',
+                            "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
+                            'SELECT COUNT(*) FROM test_app_testmodel;',
+                            ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  datetime_field is null LIMIT  1000 ) "
+                             "UPDATE test_app_testmodel table_ SET datetime_field = \'2017-12-15T03:21:34+00:00\'::timestamptz FROM   cte WHERE  table_.id = cte.pk"),
+                            ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  datetime_field is null LIMIT  1000"
+                             " ) UPDATE test_app_testmodel table_ SET datetime_field = \'2017-12-15T03:21:34+00:00\'::timestamptz FROM   cte WHERE  table_.id = cte.pk"),
+                            'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" DROP DEFAULT',
+                            ]
+        assert queries == expected_queries
     sql = 'SELECT * from "test_app_testmodel" where id = %s'
     with connection.cursor() as cursor:
         cursor.execute(sql, (test_object.id, ))
