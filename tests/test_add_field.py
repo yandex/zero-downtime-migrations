@@ -237,11 +237,11 @@ def test_add_datetime_field_with_auto_now_add_existed_object_success(test_object
                         'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" DROP DEFAULT',
                         ]
         assert queries == expected_queries
-    sql = 'SELECT * from "test_app_testmodel" where id = %s'
-    with connection.cursor() as cursor:
-        cursor.execute(sql, (test_object.id, ))
-        result = cursor.fetchall()
-    assert result == [(test_object.id, test_object.name, datetime(2017, 12, 15, 3, 21, 34, tzinfo=pytz.UTC))]
+        sql = 'SELECT * from "test_app_testmodel" where id = %s'
+        with connection.cursor() as cursor:
+            cursor.execute(sql, (test_object.id, ))
+            result = cursor.fetchall()
+        assert result == [(test_object.id, test_object.name, datetime(2017, 12, 15, 3, 21, 34, tzinfo=pytz.UTC))]
 
 
 @freeze_time("2017-12-15 03:21:34", tz_offset=-3)
@@ -272,11 +272,11 @@ def test_add_datetime_field_with_auto_now_existed_object_success(test_object):
                             'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" DROP DEFAULT',
                             ]
         assert queries == expected_queries
-    sql = 'SELECT * from "test_app_testmodel" where id = %s'
-    with connection.cursor() as cursor:
-        cursor.execute(sql, (test_object.id, ))
-        result = cursor.fetchall()
-    assert result == [(test_object.id, test_object.name, datetime(2017, 12, 15, 3, 21, 34, tzinfo=pytz.UTC))]
+        sql = 'SELECT * from "test_app_testmodel" where id = %s'
+        with connection.cursor() as cursor:
+            cursor.execute(sql, (test_object.id, ))
+            result = cursor.fetchall()
+        assert result == [(test_object.id, test_object.name, datetime(2017, 12, 15, 3, 21, 34, tzinfo=pytz.UTC))]
 
 
 @freeze_time("2017-12-15 03:21:34", tz_offset=-3)
