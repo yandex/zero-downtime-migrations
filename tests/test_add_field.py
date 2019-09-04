@@ -207,6 +207,40 @@ def test_add_datetime_field_with_existed_object_success(test_object):
 
 
 @freeze_time("2017-12-15 03:21:34", tz_offset=-3)
+def test_add_datetime_field_with_autho_existed_object_success(test_object):
+    columns = column_classes(TestModel)
+    assert "datetime_field" not in columns
+
+    field = models.DateTimeField(auto_now_add=True, null=True)
+    field.set_attributes_from_name("datetime_field")
+    with CaptureQueriesContext(connection) as ctx, schema_editor(connection=connection) as editor:
+        editor.add_field(TestModel, field)
+        queries = [query_data['sql'] for query_data in ctx.captured_queries if
+                   'test_app' in query_data['sql']]
+
+    columns = column_classes(TestModel)
+    assert columns['datetime_field'][0] == "DateTimeField"
+    expected_queries = [("SELECT IS_NULLABLE, DATA_TYPE, COLUMN_DEFAULT from information_schema.columns where "
+                         "table_name = 'test_app_testmodel' and column_name = 'datetime_field';"),
+                        'ALTER TABLE "test_app_testmodel" ADD COLUMN "datetime_field" timestamp with time zone NULL',
+                        'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" SET DEFAULT \'2017-12-15T00:21:34+00:00\'::timestamptz',
+                        "SELECT reltuples::BIGINT FROM pg_class WHERE relname = 'test_app_testmodel';",
+                        'SELECT COUNT(*) FROM test_app_testmodel;',
+                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  datetime_field is null LIMIT  1000 ) "
+                         "UPDATE test_app_testmodel table_ SET datetime_field = \'2017-12-15T00:21:34+00:00\'::timestamptz FROM   cte WHERE  table_.id = cte.pk"),
+                        ("WITH cte AS ( SELECT id as pk FROM test_app_testmodel WHERE  datetime_field is null LIMIT  1000"
+                         " ) UPDATE test_app_testmodel table_ SET datetime_field = \'2017-12-15T00:21:34+00:00\'::timestamptz FROM   cte WHERE  table_.id = cte.pk"),
+                        'ALTER TABLE "test_app_testmodel" ALTER COLUMN "datetime_field" DROP DEFAULT',
+                        ]
+    assert queries == expected_queries
+    sql = 'SELECT * from "test_app_testmodel" where id = %s'
+    with connection.cursor() as cursor:
+        cursor.execute(sql, (test_object.id, ))
+        result = cursor.fetchall()
+    assert result == [(test_object.id, test_object.name, datetime(2017, 12, 15, 0, 21, 34, tzinfo=pytz.UTC))]
+
+
+@freeze_time("2017-12-15 03:21:34", tz_offset=-3)
 def test_add_datetime_field_with_existed_many_objects_success(test_object, test_object_two, test_object_three, ):
     columns = column_classes(TestModel)
     assert "datetime_field" not in columns

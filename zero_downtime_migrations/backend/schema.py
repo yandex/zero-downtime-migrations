@@ -73,50 +73,61 @@ class ZeroDownTimeMixin(object):
 
         return super(ZeroDownTimeMixin, self).alter_field(model, old_field, new_field, strict=strict)
 
+    def _field_supported(self, field):
+        supported = True
+        if isinstance(field, RelatedField):
+            supported = False
+        elif (field.default is NOT_PROVIDED
+              and not (getattr(field, 'auto_now', False) or
+                       getattr(field, 'auto_now_add', False))
+              ):
+            supported = False
+        return supported
+
     def add_field(self, model, field):
-        if isinstance(field, RelatedField) or field.default is NOT_PROVIDED:
+        if not self._field_supported(field=field):
             return super(ZeroDownTimeMixin, self).add_field(model, field)
-        else:
-            # Checking which actions we should perform - maybe this operation was run
-            # before and it had crashed for some reason
-            actions = self.get_actions_to_perform(model, field)
-            if not actions:
-                return
 
-            # Saving initial values
-            default_effective_value = self.effective_default(field)
-            nullable = field.null
-            # Update the values to the required ones
-            field.default = None if DJANGO_VERISON < StrictVersion('1.11') else NOT_PROVIDED
-            if nullable is False:
-                field.null = True
+        # Checking which actions we should perform - maybe this operation was run
+        # before and it had crashed for some reason
+        actions = self.get_actions_to_perform(model, field)
+        if not actions:
+            return
 
-            # For Django < 1.10
-            atomic = getattr(self, 'atomic_migration', True)
+        # Saving initial values
+        default_effective_value = self.effective_default(field)
+        nullable = field.null
+        # Update the values to the required ones
+        field.default = None if DJANGO_VERISON < StrictVersion('1.11') else NOT_PROVIDED
+        if nullable is False:
+            field.null = True
 
-            if self.connection.in_atomic_block:
-                self.atomic.__exit__(None, None, None)
+        # For Django < 1.10
+        atomic = getattr(self, 'atomic_migration', True)
 
-            available_args = {
-                'model': model,
-                'field': field,
-                'nullable': nullable,
-                'default_effective_value': default_effective_value,
-            }
-            # Performing needed actions
-            for action in actions:
-                action = '_'.join(action.split())
-                func = getattr(self, action)
-                func_args = {arg: available_args[arg] for arg in
-                             inspect.getargspec(func).args if arg != 'self'
-                             }
-                func(**func_args)
+        if self.connection.in_atomic_block:
+            self.atomic.__exit__(None, None, None)
 
-            # If migrations was atomic=True initially
-            # entering atomic block again
-            if atomic:
-                self.atomic = transaction.atomic(self.connection.alias)
-                self.atomic.__enter__()
+        available_args = {
+            'model': model,
+            'field': field,
+            'nullable': nullable,
+            'default_effective_value': default_effective_value,
+        }
+        # Performing needed actions
+        for action in actions:
+            action = '_'.join(action.split())
+            func = getattr(self, action)
+            func_args = {arg: available_args[arg] for arg in
+                         inspect.getargspec(func).args if arg != 'self'
+                         }
+            func(**func_args)
+
+        # If migrations was atomic=True initially
+        # entering atomic block again
+        if atomic:
+            self.atomic = transaction.atomic(self.connection.alias)
+            self.atomic.__enter__()
 
     def add_field_with_default(self, model, field, default_effective_value):
         """
