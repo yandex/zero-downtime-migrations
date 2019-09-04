@@ -77,11 +77,14 @@ class ZeroDownTimeMixin(object):
         supported = True
         if isinstance(field, RelatedField):
             supported = False
-        elif (field.default is NOT_PROVIDED
-              and not (getattr(field, 'auto_now', False) or
-                       getattr(field, 'auto_now_add', False))
-              ):
+        elif field.default is NOT_PROVIDED:
             supported = False
+
+            if (DJANGO_VERISON > StrictVersion('1.10') and
+                (getattr(field, 'auto_now', False) or
+                 getattr(field, 'auto_now_add', False))
+            ):
+                supported = True
         return supported
 
     def add_field(self, model, field):
@@ -195,12 +198,12 @@ class ZeroDownTimeMixin(object):
             elif result == 3:
                 question = 'Now choose from which action process should continue'
                 result = questioner._choice_input(question, actions)
-                actions = actions[result-1:]
+                actions = actions[result - 1:]
             elif result == 4:
                 question = 'Rows in table where column is null: "{}"'
                 need_to_update = self.need_to_update(model=model, field=field)
                 questioner._choice_input(question.format(need_to_update),
-                                         ('Continue', )
+                                         ('Continue',)
                                          )
                 return self.get_actions_to_perform(model, field)
             elif result == 5:
@@ -253,7 +256,7 @@ class ZeroDownTimeMixin(object):
                 return cursor.rowcount
             return cursor.fetchone()
 
-    def parse_cursor_result(self, cursor_result, place=0, collect_sql_value=1,):
+    def parse_cursor_result(self, cursor_result, place=0, collect_sql_value=1, ):
         result = None
         if self.collect_sql:
             result = collect_sql_value  # For sqlmigrate purpose
@@ -313,8 +316,8 @@ class ZeroDownTimeMixin(object):
         new_db_params = field.db_parameters(connection=self.connection)
         sql = self.sql_alter_column_not_null
         return sql % {
-                'column': self.quote_name(field.column),
-                'type': new_db_params['type'],
+            'column': self.quote_name(field.column),
+            'type': new_db_params['type'],
         }
 
     def _alter_column_default_sql_local(self, field, default_value=None, drop=False):
