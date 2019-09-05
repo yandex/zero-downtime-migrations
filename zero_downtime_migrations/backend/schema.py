@@ -73,50 +73,70 @@ class ZeroDownTimeMixin(object):
 
         return super(ZeroDownTimeMixin, self).alter_field(model, old_field, new_field, strict=strict)
 
+    def _field_supported(self, field):
+        supported = True
+        if isinstance(field, RelatedField):
+            supported = False
+        elif field.default is NOT_PROVIDED:
+            supported = False
+
+            if (DJANGO_VERISON >= StrictVersion('1.10') and
+                (getattr(field, 'auto_now', False) or
+                 getattr(field, 'auto_now_add', False))
+            ):
+                self.date_default = True
+                supported = True
+        return supported
+
     def add_field(self, model, field):
-        if isinstance(field, RelatedField) or field.default is NOT_PROVIDED:
+        if not self._field_supported(field=field):
             return super(ZeroDownTimeMixin, self).add_field(model, field)
-        else:
-            # Checking which actions we should perform - maybe this operation was run
-            # before and it had crashed for some reason
-            actions = self.get_actions_to_perform(model, field)
-            if not actions:
-                return
 
-            # Saving initial values
-            default_effective_value = self.effective_default(field)
-            nullable = field.null
-            # Update the values to the required ones
-            field.default = None if DJANGO_VERISON < StrictVersion('1.11') else NOT_PROVIDED
-            if nullable is False:
-                field.null = True
+        # Checking which actions we should perform - maybe this operation was run
+        # before and it had crashed for some reason
+        actions = self.get_actions_to_perform(model, field)
+        if not actions:
+            return
 
-            # For Django < 1.10
-            atomic = getattr(self, 'atomic_migration', True)
+        # Saving initial values
+        default_effective_value = self.effective_default(field)
+        nullable = field.null
+        # Update the values to the required ones
+        field.default = None if DJANGO_VERISON < StrictVersion('1.11') else NOT_PROVIDED
+        if getattr(self, 'date_default', False):
+            if getattr(field, 'auto_now', False):
+                field.auto_now = False
+            if getattr(field, 'auto_now_add', False):
+                field.auto_now_add = False
+        if nullable is False:
+            field.null = True
 
-            if self.connection.in_atomic_block:
-                self.atomic.__exit__(None, None, None)
+        # For Django < 1.10
+        atomic = getattr(self, 'atomic_migration', True)
 
-            available_args = {
-                'model': model,
-                'field': field,
-                'nullable': nullable,
-                'default_effective_value': default_effective_value,
-            }
-            # Performing needed actions
-            for action in actions:
-                action = '_'.join(action.split())
-                func = getattr(self, action)
-                func_args = {arg: available_args[arg] for arg in
-                             inspect.getargspec(func).args if arg != 'self'
-                             }
-                func(**func_args)
+        if self.connection.in_atomic_block:
+            self.atomic.__exit__(None, None, None)
 
-            # If migrations was atomic=True initially
-            # entering atomic block again
-            if atomic:
-                self.atomic = transaction.atomic(self.connection.alias)
-                self.atomic.__enter__()
+        available_args = {
+            'model': model,
+            'field': field,
+            'nullable': nullable,
+            'default_effective_value': default_effective_value,
+        }
+        # Performing needed actions
+        for action in actions:
+            action = '_'.join(action.split())
+            func = getattr(self, action)
+            func_args = {arg: available_args[arg] for arg in
+                         inspect.getargspec(func).args if arg != 'self'
+                         }
+            func(**func_args)
+
+        # If migrations was atomic=True initially
+        # entering atomic block again
+        if atomic:
+            self.atomic = transaction.atomic(self.connection.alias)
+            self.atomic.__enter__()
 
     def add_field_with_default(self, model, field, default_effective_value):
         """
@@ -184,12 +204,12 @@ class ZeroDownTimeMixin(object):
             elif result == 3:
                 question = 'Now choose from which action process should continue'
                 result = questioner._choice_input(question, actions)
-                actions = actions[result-1:]
+                actions = actions[result - 1:]
             elif result == 4:
                 question = 'Rows in table where column is null: "{}"'
                 need_to_update = self.need_to_update(model=model, field=field)
                 questioner._choice_input(question.format(need_to_update),
-                                         ('Continue', )
+                                         ('Continue',)
                                          )
                 return self.get_actions_to_perform(model, field)
             elif result == 5:
@@ -242,7 +262,7 @@ class ZeroDownTimeMixin(object):
                 return cursor.rowcount
             return cursor.fetchone()
 
-    def parse_cursor_result(self, cursor_result, place=0, collect_sql_value=1,):
+    def parse_cursor_result(self, cursor_result, place=0, collect_sql_value=1, ):
         result = None
         if self.collect_sql:
             result = collect_sql_value  # For sqlmigrate purpose
@@ -302,8 +322,8 @@ class ZeroDownTimeMixin(object):
         new_db_params = field.db_parameters(connection=self.connection)
         sql = self.sql_alter_column_not_null
         return sql % {
-                'column': self.quote_name(field.column),
-                'type': new_db_params['type'],
+            'column': self.quote_name(field.column),
+            'type': new_db_params['type'],
         }
 
     def _alter_column_default_sql_local(self, field, default_value=None, drop=False):
