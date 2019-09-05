@@ -1,3 +1,10 @@
+0.8
+---
+  * fix work with DateTimeField, see https://github.com/yandex/zero-downtime-migrations/issues/20
+
+[Vladimir Koljasinskij](smosker@gmail.com) 2019-09-05 14:24:27+03:00
+
+
 0.7
 ---
   * add checking index status after creation
