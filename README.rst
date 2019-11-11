@@ -42,7 +42,7 @@ Installation
 ------------
 To install :code:`ZDM`, simply run:
 
-::
+.. code:: bash
 
     pip install zero-downtime-migrations
 
@@ -50,7 +50,7 @@ Usage
 -----
 If you are currently using default postresql backend change it to:
 
-::
+.. code:: python
 
     DATABASES = {
          'default': {
@@ -65,7 +65,7 @@ If you are using your own custom backend you can:
 
 * Set :code:`SchemaEditorClass` if you are currently using default one:
 
-::
+.. code:: python
 
     from zero_downtime_migrations.backend.schema import DatabaseSchemaEditor
 
@@ -75,7 +75,7 @@ If you are using your own custom backend you can:
 
 * Add :code:`ZeroDownTimeMixin` to base classes of your :code:`DatabaseSchemaEditor` if you are using custom one:
 
-::
+.. code:: python
 
     from zero_downtime_migrations.backend.schema import ZeroDownTimeMixin
 
@@ -95,7 +95,7 @@ Example
 -------
 When adding not null column with default django will perform such sql query:
 
-::
+.. code:: sql
 
     ALTER TABLE "test" ADD COLUMN "field" boolean DEFAULT True NOT NULL;
 
@@ -107,7 +107,7 @@ table but also to add column with as small lock times as possible.
 
 First of all we will add nullable column without default and add default value to it in separate command in one transaction:
 
-::
+.. code:: sql
 
     ALTER TABLE "test" ADD COLUMN "field" boolean NULL;
     ALTER TABLE "test" ALTER COLUMN "field" SET DEFAULT true;
@@ -121,7 +121,7 @@ column - we will update them.
 
 While result of following statement is more than zero:
 
-::
+.. code:: sql
 
     WITH cte AS (
     SELECT <table_pk_column> as pk
@@ -137,7 +137,7 @@ While result of following statement is more than zero:
 When we have no more rows with null in this column we can set not null and drop default (which is django default
 behavior):
 
-::
+.. code:: sql
 
     ALTER TABLE "test" ALTER COLUMN "field" SET NOT NULL;
     ALTER TABLE "test" ALTER COLUMN "field" DROP DEFAULT;
@@ -149,6 +149,6 @@ there are no long locks on table so service can work normally during this migrat
 Run tests
 ---------
 
-::
+.. code:: bash
 
     ./run_tests.sh
