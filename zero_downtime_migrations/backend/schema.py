@@ -37,6 +37,7 @@ TABLE_SIZE_FOR_MAX_BATCH = 500000
 MAX_BATCH_SIZE = 10000
 MIN_BATCH_SIZE = 1000
 
+_getargspec = getattr(inspect, 'getfullargspec', inspect.getargspec)
 
 class ZeroDownTimeMixin(object):
     RETRY_QUESTION_TEMPLATE = ('It look like column "{}" in table "{}" already exist with following '
@@ -128,7 +129,7 @@ class ZeroDownTimeMixin(object):
             action = '_'.join(action.split())
             func = getattr(self, action)
             func_args = {arg: available_args[arg] for arg in
-                         inspect.getargspec(func).args if arg != 'self'
+                         _getargspec(func).args if arg != 'self'
                          }
             func(**func_args)
 
