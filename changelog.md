@@ -1,3 +1,10 @@
+0.9
+---
+  * Remove usage of deprecated inspect.getargspec if posible (#24) 
+
+[Vladimir Koljasinskij](smosker@gmail.com) 2021-06-08 16:24:27+03:00
+
+
 0.8
 ---
   * fix work with DateTimeField, see https://github.com/yandex/zero-downtime-migrations/issues/20
