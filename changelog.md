@@ -1,3 +1,10 @@
+0.10
+---
+  * Fix infinite loop when updating with default=None (#26)
+
+[Vladimir Koljasinskij](smosker@gmail.com) 2021-08-26 16:24:27+03:00
+
+
 0.9
 ---
   * Remove usage of deprecated inspect.getargspec if posible (#24) 
