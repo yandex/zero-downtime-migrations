@@ -154,6 +154,8 @@ class ZeroDownTimeMixin(object):
         Updating existing rows in table by (relatively) small batches
         to avoid long locks on table
         """
+        if default_effective_value is None:
+            return
         objects_in_table = self.count_objects_in_table(model=model)
         if objects_in_table > 0:
             objects_in_batch_count = self.get_objects_in_batch_count(objects_in_table)
