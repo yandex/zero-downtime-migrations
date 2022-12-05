@@ -37,7 +37,7 @@ TABLE_SIZE_FOR_MAX_BATCH = 500000
 MAX_BATCH_SIZE = 10000
 MIN_BATCH_SIZE = 1000
 
-_getargspec = getattr(inspect, 'getfullargspec', inspect.getargspec)
+_getargspec = getattr(inspect, 'getfullargspec', getattr(inspect, 'getargspec', None))
 
 class ZeroDownTimeMixin(object):
     RETRY_QUESTION_TEMPLATE = ('It look like column "{}" in table "{}" already exist with following '
