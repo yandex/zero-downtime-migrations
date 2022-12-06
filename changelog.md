@@ -1,3 +1,10 @@
+0.11
+---
+  * Add support Python 3.11 (#28) 
+
+[Vladimir Koljasinskij](smosker@gmail.com) 2022-12-06 16:24:27+03:00
+
+
 0.10
 ---
   * Fix infinite loop when updating with default=None (#26)
