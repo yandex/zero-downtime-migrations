@@ -48,5 +48,6 @@ setup(
     install_requires=[
         'Django>=1.3',
         'psycopg2>=2.7.3.2',
+        'packaging',
     ]
 )

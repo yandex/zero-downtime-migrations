@@ -6,7 +6,7 @@ import re
 import sys
 import inspect
 
-from distutils.version import StrictVersion
+from packaging.version import Version
 
 try:
     from django.db.backends.postgresql.schema import DatabaseSchemaEditor as BaseEditor
@@ -32,7 +32,7 @@ from zero_downtime_migrations.backend.sql_template import (
 
 from zero_downtime_migrations.backend.exceptions import InvalidIndexError
 
-DJANGO_VERISON = StrictVersion(django.get_version())
+DJANGO_VERISON = Version(django.get_version())
 TABLE_SIZE_FOR_MAX_BATCH = 500000
 MAX_BATCH_SIZE = 10000
 MIN_BATCH_SIZE = 1000
@@ -61,7 +61,7 @@ class ZeroDownTimeMixin(object):
 
     def alter_field(self, model, old_field, new_field, strict=False):
 
-        if DJANGO_VERISON >= StrictVersion('2.1'):
+        if DJANGO_VERISON >= Version('2.1'):
             from django.db.backends.ddl_references import IndexName
             if self._unique_should_be_added(old_field, new_field):
                 table = model._meta.db_table
@@ -81,7 +81,7 @@ class ZeroDownTimeMixin(object):
         elif field.default is NOT_PROVIDED:
             supported = False
 
-            if (DJANGO_VERISON >= StrictVersion('1.10') and
+            if (DJANGO_VERISON >= Version('1.10') and
                 (getattr(field, 'auto_now', False) or
                  getattr(field, 'auto_now_add', False))
             ):
@@ -103,7 +103,7 @@ class ZeroDownTimeMixin(object):
         default_effective_value = self.effective_default(field)
         nullable = field.null
         # Update the values to the required ones
-        field.default = None if DJANGO_VERISON < StrictVersion('1.11') else NOT_PROVIDED
+        field.default = None if DJANGO_VERISON < Version('1.11') else NOT_PROVIDED
         if getattr(self, 'date_default', False):
             if getattr(field, 'auto_now', False):
                 field.auto_now = False
@@ -381,7 +381,7 @@ class ZeroDownTimeMixin(object):
                 return index_name
 
     def _create_unique_failed(self, exc):
-        return (DJANGO_VERISON >= StrictVersion('2.1')
+        return (DJANGO_VERISON >= Version('2.1')
                 and 'could not create unique index' in repr(exc)
                 )
 
