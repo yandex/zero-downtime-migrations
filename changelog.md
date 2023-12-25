@@ -1,3 +1,10 @@
+0.12
+---
+  * Add support Python 3.11 (#32) 
+
+[Vladimir Koljasinskij](smosker@gmail.com) 2023-12-25 17:58:27+03:00
+
+
 0.11
 ---
   * Add support Python 3.11 (#28) 
@@ -72,4 +79,3 @@
   * initial release
 
 [Vladimir Koljasinskij](smosker@gmail.com) 2018-01-17 14:16:27+03:00
-
