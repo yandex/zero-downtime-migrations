@@ -285,9 +285,9 @@ class ZeroDownTimeMixin(object):
             sql=SQL_ESTIMATE_COUNT_IN_TABLE,
             model=model,
         )
-        if count == 0:
+        if count in [0, -1]:
             # Check, maybe statistic is outdated?
-            # Because previous count return 0 it will be fast query
+            # Because previous count return 0 or -1 it will be fast query
             count = self.execute_table_query(
                 sql=SQL_COUNT_IN_TABLE,
                 model=model,
